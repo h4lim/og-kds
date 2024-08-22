@@ -235,7 +235,7 @@ func (r *Response) getMessage() {
 	case strings.ToUpper(r.Language) == "EN":
 		r.Message = infra.MessageEN[strCode]
 	default:
-		r.Message = "unknown message"
+		r.Message = infra.MessageEN["EN"]
 	}
 
 	if r.Message == "" {
