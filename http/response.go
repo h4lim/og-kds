@@ -14,14 +14,14 @@ import (
 type RequestBuildGin struct {
 	Code       int    `json:"code"`
 	Message    string `json:"message"`
-	ResponseID int64  `json:"responseId"`
+	ResponseID int64  `json:"response_id"`
 }
 
 type RequestBuildGinWithData struct {
 	Code       int    `json:"code"`
 	Message    string `json:"message"`
 	Data       any    `json:"data"`
-	ResponseID int64  `json:"responseId"`
+	ResponseID int64  `json:"response_id"`
 }
 
 type RequestBuildGinSnap struct {
