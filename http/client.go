@@ -35,7 +35,7 @@ type ClientContext struct {
 type IClient interface {
 	Hit() ClientContext
 	MustHttpOk200() ClientContext
-	UnmarshalJson(jsonData *interface{}) ClientContext
+	UnmarshalJson(jsonData any) ClientContext
 	GetPartyResponse() (*party.Response, error)
 }
 
