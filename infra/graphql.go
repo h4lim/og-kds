@@ -24,7 +24,7 @@ func NewGraphQLConfig(model GraphQLModel) IGraphQLConfig {
 }
 
 func (g GraphQLModel) Open() {
-	
+
 	client := graphql.NewClient(g.Endpoint, http.DefaultClient)
 	GraphQL = client
 }

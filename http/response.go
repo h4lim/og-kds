@@ -14,14 +14,14 @@ import (
 type RequestBuildGin struct {
 	Code       int    `json:"code"`
 	Message    string `json:"message"`
-	ResponseID int64  `json:"responseId"`
+	ResponseID int64  `json:"response_id"`
 }
 
 type RequestBuildGinWithData struct {
 	Code       int    `json:"code"`
 	Message    string `json:"message"`
 	Data       any    `json:"data"`
-	ResponseID int64  `json:"responseId"`
+	ResponseID int64  `json:"response_id"`
 }
 
 type RequestBuildGinSnap struct {
@@ -235,7 +235,7 @@ func (r *Response) getMessage() {
 	case strings.ToUpper(r.Language) == "EN":
 		r.Message = infra.MessageEN[strCode]
 	default:
-		r.Message = "unknown message"
+		r.Message = infra.MessageEN["EN"]
 	}
 
 	if r.Message == "" {
