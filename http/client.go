@@ -66,7 +66,7 @@ func (c ClientContext) MustHttpOk200() ClientContext {
 }
 
 // UnmarshalJson implements IClient.
-func (c ClientContext) UnmarshalJson(jsonData *interface{}) ClientContext {
+func (c ClientContext) UnmarshalJson(jsonData any) ClientContext {
 	if c.Error == nil {
 		errUnmarshal := json.Unmarshal([]byte(c.PartyResponse.ResponseBody), jsonData)
 		if errUnmarshal != nil {
