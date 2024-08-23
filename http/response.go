@@ -64,12 +64,16 @@ type Response struct {
 	AdditionalTracer []string
 }
 
-func InitResponse(responseID int64, language string, additionalTracer []string) Response {
+func InitResponse(responseID int64, language string) Response {
 	return Response{
-		ResponseID:       responseID,
-		Language:         language,
-		AdditionalTracer: additionalTracer,
+		ResponseID: responseID,
+		Language:   language,
 	}
+}
+
+func (r Response) SetAdditionalTracer(additionalTracer string) Response {
+	r.AdditionalTracer = append(r.AdditionalTracer, additionalTracer)
+	return r
 }
 
 func (r Response) SetAll(newR Response) Response {

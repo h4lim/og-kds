@@ -93,13 +93,9 @@ func GetNextStep(responseId int64) string {
 	return strconv.Itoa(Step[responseId])
 }
 
-func Tracer(additionalTracers *[]string) TracerModel {
+func Tracer() TracerModel {
 
 	var model TracerModel
-	if additionalTracers != nil {
-		model.AdditionalTracer = *additionalTracers
-	}
-
 	pc, fileName, line, ok := runtime.Caller(1)
 	if !ok {
 		return model
