@@ -43,33 +43,32 @@ type ResponseBuildGin struct {
 }
 
 type TracerModel struct {
-	TraceID          string   `json:"trace_id"`
-	ResponseID       int64    `json:"response_id"`
-	AdditionalTracer []string `json:"additional_tracer"`
-	FunctionName     string   `json:"function_name"`
-	FileName         string   `json:"file_name"`
-	Line             int      `json:"line"`
-	Step             int      `json:"step"`
-	Duration         string   `json:"duration"`
-	TotalDuration    string   `json:"total_duration"`
+	FunctionName  string `json:"function_name"`
+	FileName      string `json:"file_name"`
+	Line          int    `json:"line"`
+	Step          int    `json:"step"`
+	Duration      string `json:"duration"`
+	TotalDuration string `json:"total_duration"`
 }
 
 type Response struct {
-	HttpCode       int
-	Code           int
-	AdditionalCode int
-	Message        string
-	Data           any
-	Error          *error
-	Tracer         TracerModel
-	ResponseID     int64
-	Language       string
+	HttpCode         int
+	Code             int
+	AdditionalCode   int
+	Message          string
+	Data             any
+	Error            *error
+	Tracer           TracerModel
+	ResponseID       int64
+	Language         string
+	AdditionalTracer []string
 }
 
-func InitResponse(responseID int64, language string) Response {
+func InitResponse(responseID int64, language string, additionalTracer []string) Response {
 	return Response{
-		ResponseID: responseID,
-		Language:   language,
+		ResponseID:       responseID,
+		Language:         language,
+		AdditionalTracer: additionalTracer,
 	}
 }
 
@@ -202,7 +201,7 @@ func (r *Response) debug(nextStep bool) {
 
 		zapFields = append(zapFields, zap.String("duration", GetDuration(r.ResponseID)+" ms"))
 		zapFields = append(zapFields, zap.String("total-duration", fmt.Sprintf("%v", ms)+" ms"))
-		zapFields = append(zapFields, zap.String("additional-tracer", strings.Join(r.Tracer.AdditionalTracer, " ")))
+		zapFields = append(zapFields, zap.String("additional-tracer", strings.Join(r.AdditionalTracer, " ")))
 		zapFields = append(zapFields, zap.Int("http-code", r.HttpCode))
 		zapFields = append(zapFields, zap.Int("code", r.Code))
 		zapFields = append(zapFields, zap.String("message ", r.Message))
