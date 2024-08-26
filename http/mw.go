@@ -78,7 +78,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
 			return
 		}
-		zapFields = append(zapFields, zap.String("header", string(rawData)))
+		zapFields = append(zapFields, zap.String("request-body", string(rawData)))
 
 	}
 

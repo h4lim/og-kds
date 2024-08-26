@@ -58,7 +58,9 @@ func (c ClientContext) GetPartyResponse() (*party.Response, error) {
 func (c ClientContext) MustHttpOk200() ClientContext {
 	if c.Error == nil {
 		if c.PartyResponse.HttpCode != 200 {
-			c.Error = errors.New("http must 200")
+			c.Error = errors.New("http must 200 : " +
+				strconv.Itoa(c.PartyResponse.HttpCode) +
+				"response body" + c.PartyResponse.ResponseBody)
 		}
 	}
 
@@ -94,6 +96,11 @@ func (c ClientContext) Hit() ClientContext {
 	if c.ClientRequest.AdditionalTracer != nil {
 		zapFields = append(zapFields, zap.String("additional-tracer", strings.Join(*c.ClientRequest.AdditionalTracer, " ")))
 	}
+
+	zapFields = append(zapFields, zap.String("url", c.ClientRequest.URL))
+	zapFields = append(zapFields, zap.String("http-methode", c.ClientRequest.HttpMethod))
+	zapFields = append(zapFields, zap.String("header", fmt.Sprintf("%v", &c.ClientRequest.Header)))
+	zapFields = append(zapFields, zap.String("request-body", *c.ClientRequest.RequestBody))
 
 	if c.ClientRequest.RequestBody != nil {
 		clientParty.SetRequestBodyStr(*c.ClientRequest.RequestBody)

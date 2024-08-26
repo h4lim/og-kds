@@ -151,6 +151,9 @@ func (r Response) SetError(newError *error) Response {
 
 func (r Response) BuildGinResponse() (int, any) {
 
+	delete(UnixTimestamp, r.ResponseID)
+	delete(Step, r.ResponseID)
+
 	return r.HttpCode, RequestBuildGin{
 		Code:       r.Code,
 		Message:    r.Message,
@@ -159,7 +162,10 @@ func (r Response) BuildGinResponse() (int, any) {
 }
 
 func (r Response) BuildGinResponseWithData(data any) (int, any) {
+
 	r.Data = data
+	delete(UnixTimestamp, r.ResponseID)
+	delete(Step, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGinWithData{
 		Code:       r.Code,
@@ -171,6 +177,9 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 func (r Response) BuildGinResponseSnap() (int, any) {
 
+	delete(UnixTimestamp, r.ResponseID)
+	delete(Step, r.ResponseID)
+
 	return r.HttpCode, RequestBuildGinSnap{
 		ResponseCode:    r.Code,
 		ResponseMessage: r.Message,
@@ -179,7 +188,10 @@ func (r Response) BuildGinResponseSnap() (int, any) {
 }
 
 func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
+
 	r.Data = data
+	delete(UnixTimestamp, r.ResponseID)
+	delete(Step, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGinSnapWithData{
 		ResponseCode:    r.Code,
