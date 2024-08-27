@@ -100,7 +100,6 @@ func (c ClientContext) Hit() ClientContext {
 	zapFields = append(zapFields, zap.String("url", c.ClientRequest.URL))
 	zapFields = append(zapFields, zap.String("http-methode", c.ClientRequest.HttpMethod))
 	zapFields = append(zapFields, zap.String("header", fmt.Sprintf("%v", &c.ClientRequest.Header)))
-	zapFields = append(zapFields, zap.String("request-body", *c.ClientRequest.RequestBody))
 
 	if c.ClientRequest.RequestBody != nil {
 		clientParty.SetRequestBodyStr(*c.ClientRequest.RequestBody)
