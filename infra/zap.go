@@ -35,6 +35,11 @@ func (z ZapModel) ZapSetup() *error {
 		return &err
 	}
 
+	newDir := wd + "/" + z.OutputPath
+	if err := os.Mkdir(newDir, 0755); err != nil {
+		return &err
+	}
+
 	zapConfig := zap.NewDevelopmentConfig()
 
 	outputPath := filepath.Join(wd, z.OutputPath, z.ServiceName+".log")
