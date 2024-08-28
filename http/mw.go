@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -77,9 +78,10 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 			zapFields = append(zapFields, zap.String("error", err.Error()))
 			c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
 			return
+		} else {
+			zapFields = append(zapFields, zap.String("request-body", string(rawData)))
 		}
-		zapFields = append(zapFields, zap.String("request-body", string(rawData)))
-
+		infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
 	}
 
 	c.Set("response-id", responseId)

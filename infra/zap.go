@@ -36,12 +36,13 @@ func (z ZapModel) ZapSetup() *error {
 	}
 
 	newDir := wd + "/" + z.OutputPath
-	if err := os.Mkdir(newDir, 0755); err != nil {
-		return &err
+	if _, err := os.Stat(newDir); os.IsNotExist(err) {
+		if err := os.Mkdir(newDir, 0755); err != nil {
+			return &err
+		}
 	}
 
 	zapConfig := zap.NewDevelopmentConfig()
-
 	outputPath := filepath.Join(wd, z.OutputPath, z.ServiceName+".log")
 	zapConfig.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	zapConfig.OutputPaths = []string{"stdout", outputPath}

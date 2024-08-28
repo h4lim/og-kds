@@ -12,7 +12,7 @@ import (
 var (
 	Config       map[string]string
 	ConfigString map[string]string
-	ConfigInt    map[string]int64
+	ConfigInt    map[string]int
 	ConfigBool   map[string]bool
 )
 
@@ -45,7 +45,7 @@ func (c ConfigModel) Open() *error {
 
 	environment := viper.GetString("server.mode")
 	mapString := make(map[string]string)
-	mapInt := make(map[string]int64)
+	mapInt := make(map[string]int)
 	mapBool := make(map[string]bool)
 
 	for k, v := range viper.AllSettings() {
@@ -66,7 +66,7 @@ func (c ConfigModel) Open() *error {
 					case string:
 						mapString[stringValue] = value
 					case int64:
-						mapInt[stringValue] = value
+						mapInt[stringValue] = int(value)
 					case bool:
 						mapBool[stringValue] = value
 					default:

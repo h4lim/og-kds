@@ -32,8 +32,10 @@ type Gorm interface {
 }
 
 const (
-	POSGRES_CONFIG = "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta"
-	MYSQL_CONFIG   = "%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local"
+	POSGRES_CONFIG    = "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta"
+	MYSQL_CONFIG      = "%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local"
+	MYSQL_DRIVER      = "mysql"
+	POSTGRESQL_DRIVER = "postgres"
 )
 
 func NewGormDB(model GormContext) Gorm {
@@ -94,7 +96,7 @@ func (g GormContext) openDB() (*gorm.DB, *error) {
 	}
 
 	switch strings.ToLower(g.Driver) {
-	case "mysql":
+	case MYSQL_DRIVER:
 		connectionUrl := fmt.Sprintf(
 			MYSQL_CONFIG, g.Username, g.Password, g.Host, g.Port, g.DBName,
 		)
@@ -105,7 +107,7 @@ func (g GormContext) openDB() (*gorm.DB, *error) {
 		}
 
 		return db, nil
-	case "postgres":
+	case POSTGRESQL_DRIVER:
 		connectionUrl := fmt.Sprintf(
 			POSGRES_CONFIG, g.Host, g.Username, g.Password, g.DBName, g.Port,
 		)
