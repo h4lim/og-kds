@@ -40,24 +40,20 @@ func NewRedisConfig(model RedisModel) IRedisConfig {
 }
 
 func (r RedisModel) Open() *error {
-	client := redis.NewClient(&redis.Options{
-		Addr:     r.Domain + ":" + r.Port,
-		Password: r.Password,
-		DB:       0,
-	})
 
-	if _, err := client.Ping(context.Background()).Result(); err != nil {
-		return &err
+	if _, err := open(r); err != nil {
+		return err
 	}
-
-	redisDB = client
 
 	return nil
 }
 
 func (r RedisModel) Set(key string, redisType string, value any, duration int) *error {
 
-	client := redisDB
+	client, err := open(r)
+	if err != nil {
+		return err
+	}
 
 	_duration := time.Duration(duration) * time.Second
 	switch redisType {
@@ -101,7 +97,10 @@ func (r RedisModel) Set(key string, redisType string, value any, duration int) *
 
 func (r RedisModel) Get(key string, redisType string) (*interface{}, *error) {
 
-	client := redisDB
+	client, err := open(r)
+	if err != nil {
+		return nil, err
+	}
 
 	value, errGet := client.Get(context.Background(), key).Result()
 	if errGet != nil {
@@ -127,4 +126,19 @@ func (r RedisModel) Get(key string, redisType string) (*interface{}, *error) {
 	newError := errors.New("invalid redis type")
 	return nil, &newError
 
+}
+
+func open(model RedisModel) (*redis.Client, *error) {
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     model.Domain + ":" + model.Port,
+		Password: model.Password,
+		DB:       0,
+	})
+
+	if _, err := client.Ping(context.Background()).Result(); err != nil {
+		return nil, &err
+	}
+
+	return client, nil
 }
