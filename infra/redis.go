@@ -10,7 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-var redisDB IRedisConfig
+var RedisDB IRedisConfig
 
 const (
 	JsonRedis  = "1"
