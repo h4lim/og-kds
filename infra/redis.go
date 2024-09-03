@@ -32,7 +32,7 @@ type IRedisConfig interface {
 }
 
 func InitRedis(model RedisModel) {
-	redisDB = NewRedisConfig(model)
+	RedisDB = NewRedisConfig(model)
 }
 
 func NewRedisConfig(model RedisModel) IRedisConfig {
