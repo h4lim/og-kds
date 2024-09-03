@@ -10,7 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-var redisDB *redis.Client
+var redisDB IRedisConfig
 
 const (
 	JsonRedis  = "1"
@@ -29,6 +29,10 @@ type IRedisConfig interface {
 	Open() *error
 	Set(key string, redisType string, value any, duration int) *error
 	Get(key string, redisType string) (*interface{}, *error)
+}
+
+func InitRedis(model RedisModel) {
+	redisDB = NewRedisConfig(model)
 }
 
 func NewRedisConfig(model RedisModel) IRedisConfig {
