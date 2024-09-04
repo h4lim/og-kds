@@ -45,13 +45,6 @@ func (m mwContext) CorsPolicy(c *gin.Context) {
 func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 	responseId := time.Now().UnixNano()
-
-	rawData, err := c.GetRawData()
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
-		return
-	}
-
 	unixResponse := make(map[int64]int64)
 	step := make(map[int64]int)
 	unixResponse[responseId] = responseId
@@ -81,10 +74,10 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 		} else {
 			zapFields = append(zapFields, zap.String("request-body", string(rawData)))
 		}
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(rawData))
 		infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
 	}
 
 	c.Set("response-id", responseId)
-	c.Request.Body = io.NopCloser(bytes.NewBuffer(rawData))
 	c.Next()
 }
