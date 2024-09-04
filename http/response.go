@@ -149,7 +149,7 @@ func (r *Response) SetError(newError *error) Response {
 	return *r
 }
 
-func (r *Response) BuildGinResponse() (int, any) {
+func (r Response) BuildGinResponse() (int, any) {
 
 	r.getMessage()
 	delete(UnixTimestamp, r.ResponseID)
@@ -162,7 +162,7 @@ func (r *Response) BuildGinResponse() (int, any) {
 	}
 }
 
-func (r *Response) BuildGinResponseWithData(data any) (int, any) {
+func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 	r.getMessage()
 	r.Data = data
@@ -177,7 +177,7 @@ func (r *Response) BuildGinResponseWithData(data any) (int, any) {
 	}
 }
 
-func (r *Response) BuildGinResponseSnap() (int, any) {
+func (r Response) BuildGinResponseSnap() (int, any) {
 
 	r.getMessage()
 	delete(UnixTimestamp, r.ResponseID)
@@ -190,7 +190,7 @@ func (r *Response) BuildGinResponseSnap() (int, any) {
 	}
 }
 
-func (r *Response) BuildGinResponseSnapWithData(data any) (int, any) {
+func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 	r.getMessage()
 	r.Data = data
