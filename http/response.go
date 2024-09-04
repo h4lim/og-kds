@@ -106,7 +106,7 @@ func (r *Response) SetAll(newR Response) Response {
 	return *r
 }
 
-func (r *Response) SetCode(newCode int) Response {
+func (r Response) SetCode(newCode int) Response {
 	previousCode := r.Code
 	r.AdditionalCode = 0
 	r.Code = newCode
