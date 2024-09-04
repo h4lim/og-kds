@@ -123,7 +123,7 @@ func (r Response) SetCode(newCode int) Response {
 
 	r.debug(false)
 
-	return *r
+	return r
 }
 
 func (r *Response) SetError(newError *error) Response {
