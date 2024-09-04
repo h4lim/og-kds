@@ -71,12 +71,12 @@ func InitResponse(responseID int64, language string) Response {
 	}
 }
 
-func (r Response) SetAdditionalTracer(additionalTracer string) Response {
+func (r *Response) SetAdditionalTracer(additionalTracer string) Response {
 	r.AdditionalTracer = append(r.AdditionalTracer, additionalTracer)
-	return r
+	return *r
 }
 
-func (r Response) SetAll(newR Response) Response {
+func (r *Response) SetAll(newR Response) Response {
 
 	if newR.Error != nil {
 		if newR.HttpCode == 0 {
@@ -103,10 +103,10 @@ func (r Response) SetAll(newR Response) Response {
 	r.getMessage()
 	r.debug(true)
 
-	return r
+	return *r
 }
 
-func (r Response) SetCode(newCode int) Response {
+func (r *Response) SetCode(newCode int) Response {
 	previousCode := r.Code
 	r.AdditionalCode = 0
 	r.Code = newCode
@@ -123,10 +123,10 @@ func (r Response) SetCode(newCode int) Response {
 
 	r.debug(false)
 
-	return r
+	return *r
 }
 
-func (r Response) SetError(newError *error) Response {
+func (r *Response) SetError(newError *error) Response {
 
 	previousError := r.Error
 	r.Error = newError
@@ -146,10 +146,10 @@ func (r Response) SetError(newError *error) Response {
 
 	r.debug(false)
 
-	return r
+	return *r
 }
 
-func (r Response) BuildGinResponse() (int, any) {
+func (r *Response) BuildGinResponse() (int, any) {
 
 	r.getMessage()
 	delete(UnixTimestamp, r.ResponseID)
@@ -162,7 +162,7 @@ func (r Response) BuildGinResponse() (int, any) {
 	}
 }
 
-func (r Response) BuildGinResponseWithData(data any) (int, any) {
+func (r *Response) BuildGinResponseWithData(data any) (int, any) {
 
 	r.getMessage()
 	r.Data = data
@@ -177,7 +177,7 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 	}
 }
 
-func (r Response) BuildGinResponseSnap() (int, any) {
+func (r *Response) BuildGinResponseSnap() (int, any) {
 
 	r.getMessage()
 	delete(UnixTimestamp, r.ResponseID)
@@ -190,7 +190,7 @@ func (r Response) BuildGinResponseSnap() (int, any) {
 	}
 }
 
-func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
+func (r *Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 	r.getMessage()
 	r.Data = data
