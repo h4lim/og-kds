@@ -268,6 +268,10 @@ func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 	}
 }
 
+func (r *Response) IsError() bool {
+	return r.Error != nil
+}
+
 func (r *Response) debug(nextStep bool) {
 
 	if infra.ZapLog != nil {
