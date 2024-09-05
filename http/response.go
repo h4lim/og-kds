@@ -2,10 +2,11 @@ package http
 
 import (
 	"fmt"
-	"github.com/h4lim/og-kds/infra"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/h4lim/og-kds/infra"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -63,11 +64,79 @@ type Response struct {
 	AdditionalTracer []string
 }
 
+type OptSetR struct {
+	HttpCode int
+	Code     string
+	Message  string
+	Data     any
+}
+
 func InitResponse(responseID int64, language string) Response {
 	return Response{
 		ResponseID: responseID,
 		Language:   language,
 	}
+}
+
+func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) Response {
+	r.Tracer = Tracer
+
+	var _optData OptSetR
+	if len(optData) > 0 {
+		_optData = optData[len(optData)-1]
+	}
+
+	if _optData.HttpCode == 0 {
+		_optData.HttpCode = 200
+	}
+
+	if _optData.Code == "" {
+		_optData.Code = "0"
+	}
+
+	r.HttpCode = _optData.HttpCode
+	r.Code = _optData.Code
+	r.Message = _optData.Message
+	r.Data = _optData.Data
+
+	if r.Message == "" {
+		r.getMessage()
+	}
+
+	r.debug(true)
+
+	return *r
+}
+
+func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSetR) Response {
+	r.Error = Error
+	r.Tracer = Tracer
+
+	var _optData OptSetR
+	if len(optData) > 0 {
+		_optData = optData[len(optData)-1]
+	}
+
+	if _optData.HttpCode == 0 {
+		_optData.HttpCode = 400
+	}
+
+	if _optData.Code == "" {
+		_optData.Code = "99"
+	}
+
+	r.HttpCode = _optData.HttpCode
+	r.Code = _optData.Code
+	r.Message = _optData.Message
+	r.Data = _optData.Data
+
+	if r.Message == "" {
+		r.getMessage()
+	}
+
+	r.debug(true)
+
+	return *r
 }
 
 func (r *Response) SetAdditionalTracer(additionalTracer string) Response {
@@ -149,7 +218,6 @@ func (r *Response) SetError(newError *error) Response {
 
 func (r Response) BuildGinResponse() (int, any) {
 
-	r.getMessage()
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
 
@@ -162,7 +230,6 @@ func (r Response) BuildGinResponse() (int, any) {
 
 func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
-	r.getMessage()
 	r.Data = data
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
@@ -177,7 +244,6 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 func (r Response) BuildGinResponseSnap() (int, any) {
 
-	r.getMessage()
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
 
@@ -190,7 +256,6 @@ func (r Response) BuildGinResponseSnap() (int, any) {
 
 func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
-	r.getMessage()
 	r.Data = data
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
@@ -241,16 +306,39 @@ func (r *Response) debug(nextStep bool) {
 
 func (r *Response) getMessage() {
 
-	switch {
-	case strings.ToUpper(r.Language) == "ID":
-		r.Message = infra.MessageID[r.Code]
-	case strings.ToUpper(r.Language) == "EN":
-		r.Message = infra.MessageEN[r.Code]
-	default:
-		r.Message = infra.MessageEN["EN"]
+	if r.Message == "" {
+		switch {
+		case strings.ToUpper(r.Language) == "ID":
+			r.Message = infra.MessageID[r.Code]
+		case strings.ToUpper(r.Language) == "EN":
+			r.Message = infra.MessageEN[r.Code]
+		default:
+			r.Message = infra.MessageEN["EN"]
+		}
+
+		if r.Message == "" {
+			r.Message = "unknown message"
+		}
 	}
 
+}
+
+func (r *Response) getMessageStr() {
+	message := ""
+
 	if r.Message == "" {
-		r.Message = "unknown message"
+		switch {
+		case strings.ToUpper(r.Language) == "ID":
+			r.Message = infra.MessageID[r.Code]
+		case strings.ToUpper(r.Language) == "EN":
+			r.Message = infra.MessageEN[r.Code]
+		default:
+			r.Message = infra.MessageEN["EN"]
+		}
+
+		if r.Message == "" {
+			r.Message = "unknown message"
+		}
 	}
+
 }
