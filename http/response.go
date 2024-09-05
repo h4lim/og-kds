@@ -12,26 +12,26 @@ import (
 )
 
 type RequestBuildGin struct {
-	Code       int    `json:"code"`
+	Code       string `json:"code"`
 	Message    string `json:"message"`
 	ResponseID int64  `json:"response_id"`
 }
 
 type RequestBuildGinWithData struct {
-	Code       int    `json:"code"`
+	Code       string `json:"code"`
 	Message    string `json:"message"`
 	Data       any    `json:"data"`
 	ResponseID int64  `json:"response_id"`
 }
 
 type RequestBuildGinSnap struct {
-	ResponseCode    int    `json:"responseCode"`
+	ResponseCode    string `json:"responseCode"`
 	ResponseMessage string `json:"responseMessage"`
 	ReferenceNo     int64  `json:"referenceNo"`
 }
 
 type RequestBuildGinSnapWithData struct {
-	ResponseCode    int    `json:"responseCode"`
+	ResponseCode    string `json:"responseCode"`
 	ResponseMessage string `json:"responseMessage"`
 	ReferenceNo     int64  `json:"referenceNo"`
 	Data            any    `json:"data"`
@@ -53,7 +53,7 @@ type TracerModel struct {
 
 type Response struct {
 	HttpCode         int
-	Code             int
+	Code             string
 	AdditionalCode   int
 	Message          string
 	Data             any
@@ -83,8 +83,8 @@ func (r *Response) SetAll(newR Response) Response {
 			newR.HttpCode = 400
 		}
 
-		if newR.Code == 0 {
-			newR.Code = 99
+		if newR.Code == "0" {
+			newR.Code = "99"
 		}
 	} else {
 		if newR.HttpCode == 0 {
@@ -106,7 +106,7 @@ func (r *Response) SetAll(newR Response) Response {
 	return *r
 }
 
-func (r Response) SetCode(newCode int) Response {
+func (r Response) SetCode(newCode string) Response {
 	previousCode := r.Code
 	r.AdditionalCode = 0
 	r.Code = newCode
@@ -115,8 +115,8 @@ func (r Response) SetCode(newCode int) Response {
 
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
-		zapFields = append(zapFields, zap.String("code-info", "Remapping from "+strconv.Itoa(previousCode)+" to "+strconv.Itoa(r.Code)))
-		zapFields = append(zapFields, zap.String("code", strconv.Itoa(r.Code)))
+		zapFields = append(zapFields, zap.String("code-info", "Remapping from "+previousCode+" to "+r.Code))
+		zapFields = append(zapFields, zap.String("code", r.Code))
 		zapFields = append(zapFields, zap.String("message ", r.Message))
 		infra.ZapLog.Debug(strconv.FormatInt(r.ResponseID, 10), zapFields...)
 	}
@@ -223,7 +223,7 @@ func (r *Response) debug(nextStep bool) {
 		zapFields = append(zapFields, zap.String("total-duration", fmt.Sprintf("%v", ms)+" ms"))
 		zapFields = append(zapFields, zap.String("additional-tracer", strings.Join(r.AdditionalTracer, " ")))
 		zapFields = append(zapFields, zap.Int("http-code", r.HttpCode))
-		zapFields = append(zapFields, zap.Int("code", r.Code))
+		zapFields = append(zapFields, zap.String("code", r.Code))
 		zapFields = append(zapFields, zap.String("message ", r.Message))
 
 		if r.Error != nil {
@@ -242,17 +242,12 @@ func (r *Response) debug(nextStep bool) {
 }
 
 func (r *Response) getMessage() {
-	strCode := strconv.Itoa(r.Code)
-
-	if r.AdditionalCode != 0 {
-		strCode = strCode + "_" + strconv.Itoa(r.AdditionalCode)
-	}
 
 	switch {
 	case strings.ToUpper(r.Language) == "ID":
-		r.Message = infra.MessageID[strCode]
+		r.Message = infra.MessageID[r.Code]
 	case strings.ToUpper(r.Language) == "EN":
-		r.Message = infra.MessageEN[strCode]
+		r.Message = infra.MessageEN[r.Code]
 	default:
 		r.Message = infra.MessageEN["EN"]
 	}
