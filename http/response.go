@@ -306,39 +306,17 @@ func (r *Response) debug(nextStep bool) {
 
 func (r *Response) getMessage() {
 
-	if r.Message == "" {
-		switch {
-		case strings.ToUpper(r.Language) == "ID":
-			r.Message = infra.MessageID[r.Code]
-		case strings.ToUpper(r.Language) == "EN":
-			r.Message = infra.MessageEN[r.Code]
-		default:
-			r.Message = infra.MessageEN["EN"]
-		}
-
-		if r.Message == "" {
-			r.Message = "unknown message"
-		}
+	switch {
+	case strings.ToUpper(r.Language) == "ID":
+		r.Message = infra.MessageID[r.Code]
+	case strings.ToUpper(r.Language) == "EN":
+		r.Message = infra.MessageEN[r.Code]
+	default:
+		r.Message = infra.MessageEN["EN"]
 	}
 
-}
-
-func (r *Response) getMessageStr() {
-	message := ""
-
 	if r.Message == "" {
-		switch {
-		case strings.ToUpper(r.Language) == "ID":
-			r.Message = infra.MessageID[r.Code]
-		case strings.ToUpper(r.Language) == "EN":
-			r.Message = infra.MessageEN[r.Code]
-		default:
-			r.Message = infra.MessageEN["EN"]
-		}
-
-		if r.Message == "" {
-			r.Message = "unknown message"
-		}
+		r.Message = "unknown message"
 	}
 
 }
