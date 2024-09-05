@@ -126,8 +126,11 @@ func (c ClientContext) Hit() ClientContext {
 	zapFields = append(zapFields, zap.Int("http-code",
 		clientResponse.HttpCode))
 
-	zapFields = append(zapFields, zap.String("client-response",
+	zapFields = append(zapFields, zap.String("client-response-body",
 		clientResponse.ResponseBody))
+
+	zapFields = append(zapFields, zap.String("client-response-header",
+		fmt.Sprintf("%v", clientResponse.ResponseHeader)))
 
 	if infra.ZapLog != nil {
 		infra.ZapLog.Debug(strconv.FormatInt(c.ClientRequest.ResponseId, 10), zapFields...)
