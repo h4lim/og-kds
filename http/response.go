@@ -88,6 +88,7 @@ func (r *Response) SetAll(newR Response) Response {
 	} else {
 		if newR.HttpCode == 0 {
 			newR.HttpCode = 200
+			newR.Code = "0"
 		}
 	}
 
