@@ -54,7 +54,6 @@ type TracerModel struct {
 type Response struct {
 	HttpCode         int
 	Code             string
-	AdditionalCode   int
 	Message          string
 	Data             any
 	Error            *error
@@ -83,7 +82,7 @@ func (r *Response) SetAll(newR Response) Response {
 			newR.HttpCode = 400
 		}
 
-		if newR.Code == "0" {
+		if newR.Code == "" {
 			newR.Code = "99"
 		}
 	} else {
@@ -94,7 +93,6 @@ func (r *Response) SetAll(newR Response) Response {
 
 	r.HttpCode = newR.HttpCode
 	r.Code = newR.Code
-	r.AdditionalCode = newR.AdditionalCode
 	r.Message = newR.Message
 	r.Data = newR.Data
 	r.Error = newR.Error
@@ -108,7 +106,6 @@ func (r *Response) SetAll(newR Response) Response {
 
 func (r Response) SetCode(newCode string) Response {
 	previousCode := r.Code
-	r.AdditionalCode = 0
 	r.Code = newCode
 
 	r.getMessage()
