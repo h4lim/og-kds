@@ -28,7 +28,7 @@ func (vs *StringValidatorContext) Required(errResponse http.OptSetR) StringValid
 	if vs.Error == nil && vs.ValueStr == "" {
 		errors := errors.New(vs.Key + " is required")
 
-		vs.optionalData = errResponse
+		vs.OptionalData = errResponse
 		vs.Error = &errors
 	}
 	return vs
@@ -38,7 +38,7 @@ func (vs *StringValidatorContext) MaxLength(maxLength int, errResponse http.OptS
 	if vs.Error == nil && len(vs.ValueStr) > maxLength {
 		errors := errors.New(vs.Key + " letters is exceed max letter length")
 
-		vs.optionalData = errResponse
+		vs.OptionalData = errResponse
 		vs.Error = &errors
 	}
 	return vs
@@ -49,7 +49,7 @@ func (vs *StringValidatorContext) IsInList(list string, errResponse http.OptSetR
 		if !strings.Contains(list, strings.ToUpper(vs.ValueStr)) {
 			errors := errors.New(vs.Key + " must be in allowed list [ " + list + " ]")
 
-			vs.optionalData = errResponse
+			vs.OptionalData = errResponse
 			vs.Error = &errors
 		}
 
@@ -61,7 +61,7 @@ func (vs *StringValidatorContext) IsMustSameWith(allowedValue string, errRespons
 	if vs.Error == nil && vs.ValueStr != allowedValue {
 		errors := errors.New(vs.Key + " must be the same as the allowed value")
 
-		vs.optionalData = errResponse
+		vs.OptionalData = errResponse
 		vs.Error = &errors
 
 	}
@@ -72,7 +72,7 @@ func (vs *StringValidatorContext) IsMustNotSameWith(disallowedValue string, errR
 	if vs.Error == nil && vs.ValueStr == disallowedValue {
 		errors := errors.New(vs.Key + " must not be the same as the disallowed value")
 
-		vs.optionalData = errResponse
+		vs.OptionalData = errResponse
 		vs.Error = &errors
 
 	}
@@ -85,7 +85,7 @@ func (vs *StringValidatorContext) IsISO8601(errResponse http.OptSetR) StringVali
 		if err != nil {
 			errors := errors.New(vs.Key + " must be a valid ISO 8601 date")
 
-			vs.optionalData = errResponse
+			vs.OptionalData = errResponse
 			vs.Error = &errors
 		}
 	}
@@ -99,7 +99,7 @@ func (vs *StringValidatorContext) IsAlphaNumeric(errResponse http.OptSetR) Strin
 		if !isAlphanumeric {
 			errors := errors.New(vs.Key + " must be in a alphanumeric format")
 
-			vs.optionalData = errResponse
+			vs.OptionalData = errResponse
 			vs.Error = &errors
 		}
 

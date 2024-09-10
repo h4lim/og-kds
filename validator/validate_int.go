@@ -23,7 +23,7 @@ func (iv *intValidatorContext) Required(errResponse http.OptSetR) IntValidator {
 	if iv.Error == nil && iv.ValueInt == 0 {
 		errors := errors.New(iv.Key + " is required")
 
-		iv.optionalData = errResponse
+		iv.OptionalData = errResponse
 		iv.Error = &errors
 	}
 	return iv
@@ -33,7 +33,7 @@ func (iv *intValidatorContext) GreaterThan(threshold int, errResponse http.OptSe
 	if iv.Error == nil && iv.ValueInt < int64(threshold) {
 		errors := errors.New(iv.Key + " is must greater than " + fmt.Sprintf("%d", threshold))
 
-		iv.optionalData = errResponse
+		iv.OptionalData = errResponse
 		iv.Error = &errors
 	}
 	return iv
@@ -43,7 +43,7 @@ func (iv *intValidatorContext) LessThan(threshold int, errResponse http.OptSetR)
 	if iv.Error == nil && iv.ValueInt > int64(threshold) {
 		errors := errors.New(iv.Key + " is must less than " + fmt.Sprintf("%d", threshold))
 
-		iv.optionalData = errResponse
+		iv.OptionalData = errResponse
 		iv.Error = &errors
 	}
 	return iv

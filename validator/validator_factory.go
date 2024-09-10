@@ -9,7 +9,7 @@ type Validator interface {
 }
 
 type validatorContext struct {
-	optionalData http.OptSetR
+	OptionalData http.OptSetR
 	Error        *error
 }
 
