@@ -22,7 +22,7 @@ type MwLogRequestData struct {
 }
 
 type mwContext struct {
-	DataOptInitR OptInitR
+	DataOptConfig OptConfig
 }
 
 type IMw interface {
@@ -30,14 +30,14 @@ type IMw interface {
 	DeliveryHandler(c *gin.Context)
 }
 
-func NewMw(optData ...OptInitR) IMw {
-	var _optData OptInitR
-	if len(optData) > 0 {
-		_optData = optData[len(optData)-1]
+func NewMw(optConfig ...OptConfig) IMw {
+	var _optConfig OptConfig
+	if len(optConfig) > 0 {
+		_optConfig = optConfig[len(optConfig)-1]
 	}
 
 	return mwContext{
-		DataOptInitR: _optData,
+		DataOptConfig: _optConfig,
 	}
 }
 
@@ -94,7 +94,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 		infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
 	}
 
-	if m.DataOptInitR.SqlLogs {
+	if m.DataOptConfig.SqlLogs {
 
 		logEntry := MwLogRequestData{
 			URL:           c.Request.Method + "[" + c.Request.RequestURI + "]",

@@ -30,6 +30,7 @@ type ClientContext struct {
 	ClientRequest ClientRequest
 	PartyResponse *party.Response
 	Error         error
+	DataOptConfig OptConfig
 }
 
 type IClient interface {
@@ -39,9 +40,15 @@ type IClient interface {
 	GetPartyResponse() (*party.Response, error)
 }
 
-func NewClient(ctx ClientRequest) IClient {
+func NewClient(ctx ClientRequest, optConfig ...OptConfig) IClient {
+	var _optConfig OptConfig
+	if len(optConfig) > 0 {
+		_optConfig = optConfig[len(optConfig)-1]
+	}
+
 	return ClientContext{
 		ClientRequest: ctx,
+		DataOptConfig: _optConfig,
 	}
 }
 
@@ -86,13 +93,6 @@ func (c ClientContext) Hit() ClientContext {
 
 	var zapFields []zapcore.Field
 
-	zapFields = append(zapFields, zap.String("step", GetNextStep(c.ClientRequest.ResponseId)))
-	zapFields = append(zapFields, zap.String("duration", GetDuration(c.ClientRequest.ResponseId)+" ms"))
-
-	duration := time.Now().UnixNano() - c.ClientRequest.ResponseId
-	ms := float64(duration) / float64(time.Millisecond)
-	zapFields = append(zapFields, zap.String("total-duration", fmt.Sprintf("%v", ms)+" ms"))
-
 	if c.ClientRequest.AdditionalTracer != nil {
 		zapFields = append(zapFields, zap.String("additional-tracer", strings.Join(*c.ClientRequest.AdditionalTracer, " ")))
 	}
@@ -123,6 +123,15 @@ func (c ClientContext) Hit() ClientContext {
 		c.Error = *err
 	}
 
+	zapFields = append(zapFields, zap.String("step", GetNextStep(c.ClientRequest.ResponseId)))
+
+	duration := GetDuration(c.ClientRequest.ResponseId) + " ms"
+	zapFields = append(zapFields, zap.String("duration", duration))
+
+	totalDuration := time.Now().UnixNano() - c.ClientRequest.ResponseId
+	ms := float64(totalDuration) / float64(time.Millisecond)
+	zapFields = append(zapFields, zap.String("total-duration", fmt.Sprintf("%v", ms)+" ms"))
+
 	zapFields = append(zapFields, zap.Int("http-code",
 		clientResponse.HttpCode))
 
@@ -138,5 +147,96 @@ func (c ClientContext) Hit() ClientContext {
 
 	c.PartyResponse = clientResponse
 
+	if c.DataOptConfig.SqlLogs {
+		c.logSql(duration)
+	}
+
 	return c
+}
+
+func (c ClientContext) logSql(duration string) {
+	_fnName := "ClientParty.HitExternalApi"
+
+	_step := GetStepInt(c.ClientRequest.ResponseId)
+	_duration := duration
+
+	type requestData struct {
+		Url         string `json:"url"`
+		HttpMethod  string `json:"http_method"`
+		Header      string `json:"header"`
+		RequestBody string `json:"request_body"`
+		QueryParam  string `json:"query_param"`
+		BaseAuth    string `json:"base_auth"`
+	}
+
+	type responseData struct {
+		HttpCode       string `json:"http_code"`
+		ResponseHeader string `json:"response_header"`
+		ResponseBody   string `json:"response_body"`
+	}
+
+	type logData struct {
+		RequestData  string `json:"request_data"`
+		ResponseData string `json:"response_data"`
+	}
+
+	_requestData := requestData{
+		Url:         c.ClientRequest.URL,
+		HttpMethod:  c.ClientRequest.HttpMethod,
+		Header:      fmt.Sprintf("%v", &c.ClientRequest.Header),
+		RequestBody: *c.ClientRequest.RequestBody,
+		QueryParam:  fmt.Sprintf("%v", *c.ClientRequest.QueryParam),
+		BaseAuth:    *c.ClientRequest.Username + ":" + *c.ClientRequest.Password,
+	}
+
+	var _requestDataStr string
+	_requestDataByte, err := json.Marshal(_requestData)
+	if err != nil {
+		_requestDataStr = fmt.Sprintf("%v", _requestData)
+	} else {
+		_requestDataStr = string(_requestDataByte)
+	}
+
+	_responseData := responseData{
+		HttpCode:       strconv.Itoa(c.PartyResponse.HttpCode),
+		ResponseHeader: fmt.Sprintf("%v", c.PartyResponse.ResponseHeader),
+		ResponseBody:   c.PartyResponse.ResponseBody,
+	}
+
+	var _responseDataStr string
+	_responseDataByte, err := json.Marshal(_responseData)
+	if err != nil {
+		_responseDataStr = fmt.Sprintf("%v", _responseData)
+	} else {
+		_responseDataStr = string(_responseDataByte)
+	}
+
+	_logData := logData{
+		RequestData:  _requestDataStr,
+		ResponseData: _responseDataStr,
+	}
+
+	var _logDataStr string
+	_logDataByte, err := json.Marshal(_logData)
+	if err != nil {
+		_logDataStr = fmt.Sprintf("%v", _logData)
+	} else {
+		_logDataStr = string(_logDataByte)
+	}
+
+	go func() {
+
+		data := SqlLog{
+			ResponseID:   strconv.FormatInt(c.ClientRequest.ResponseId, 10),
+			Step:         _step,
+			Code:         "",
+			Message:      "",
+			FunctionName: _fnName,
+			Data:         _logDataStr,
+			Tracer:       "",
+			Duration:     _duration,
+		}
+
+		_ = infra.GormDB.Debug().Create(&data)
+	}()
 }
