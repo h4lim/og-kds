@@ -367,7 +367,7 @@ func (r *Response) getMessage() {
 }
 
 func (r *Response) logSql() {
-	_fnName := strings.Split(r.Tracer.FunctionName, ".")
+	_fnName := r.Tracer.FunctionName
 
 	if r.Message == "" {
 		r.getMessage()
@@ -391,7 +391,7 @@ func (r *Response) logSql() {
 			Step:         _step,
 			Code:         r.Code,
 			Message:      r.Message,
-			FunctionName: _fnName[1] + "." + _fnName[2],
+			FunctionName: _fnName,
 			Data:         _data,
 			Tracer:       r.Tracer.FileName + ":" + strconv.Itoa(r.Tracer.Line),
 			Duration:     _duration,

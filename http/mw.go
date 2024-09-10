@@ -113,15 +113,17 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 		jsonString := string(jsonData)
 
+		tracer := Tracer()
+
 		data := SqlLog{
 			ResponseID:   strconv.FormatInt(responseId, 10),
 			Step:         1,
 			Code:         "0",
 			Message:      "Success",
-			FunctionName: "mw.DeliveryHandler",
+			FunctionName: tracer.FunctionName,
 			Data:         jsonString,
 			Duration:     fmt.Sprintf("%v", ms) + " ms",
-			Tracer:       "mw.go",
+			Tracer:       tracer.FileName + ":" + strconv.Itoa(tracer.Line),
 		}
 
 		_ = infra.GormDB.Debug().Create(&data)
