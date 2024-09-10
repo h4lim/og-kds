@@ -3,17 +3,19 @@ package http
 import (
 	"bytes"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/h4lim/og-kds/infra"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/h4lim/og-kds/infra"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type mwContext struct {
+	DataOptInitR OptInitR
 }
 
 type IMw interface {
@@ -21,8 +23,15 @@ type IMw interface {
 	DeliveryHandler(c *gin.Context)
 }
 
-func NewMw() IMw {
-	return mwContext{}
+func NewMw(optData ...OptInitR) IMw {
+	var _optData OptInitR
+	if len(optData) > 0 {
+		_optData = optData[len(optData)-1]
+	}
+
+	return mwContext{
+		DataOptInitR: _optData,
+	}
 }
 
 func (m mwContext) CorsPolicy(c *gin.Context) {
@@ -53,12 +62,14 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 	UnixTimestamp = unixResponse
 	Step = step
 
+	rawData, errGetRawData := c.GetRawData()
+	duration := time.Now().UnixNano() - responseId
+	ms := duration / int64(time.Millisecond)
+
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
 		zapFields = append(zapFields, zap.Int("step", 1))
 
-		duration := time.Now().UnixNano() - responseId
-		ms := duration / int64(time.Millisecond)
 		zapFields = append(zapFields, zap.String("duration", fmt.Sprintf("%v", ms)+" ms"))
 		zapFields = append(zapFields, zap.String("total-duration", fmt.Sprintf("%v", ms)+" ms"))
 		zapFields = append(zapFields, zap.String("client-ip", c.ClientIP()))
@@ -67,7 +78,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 		zapFields = append(zapFields, zap.String("header", fmt.Sprintf("%v", c.Request.Header)))
 
 		rawData, err := c.GetRawData()
-		if err != nil {
+		if errGetRawData != nil {
 			zapFields = append(zapFields, zap.String("error", err.Error()))
 			c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
 			return
@@ -76,6 +87,21 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 		}
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(rawData))
 		infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
+	}
+
+	if m.DataOptInitR.SqlLogs {
+		data := SqlLog{
+			ResponseID:   strconv.FormatInt(responseId, 10),
+			Step:         "1",
+			Code:         "0",
+			Message:      "Success",
+			FunctionName: "mw.DeliveryHandler",
+			Data:         "request-header: [" + fmt.Sprintf("%v", c.Request.Header) + "]" + "request-body: [" + string(rawData) + "]",
+			Duration:     fmt.Sprintf("%v", ms) + " ms",
+			Tracer:       "mw.go",
+		}
+
+		_ = infra.GormDB.Debug().Create(&data)
 	}
 
 	c.Set("response-id", responseId)

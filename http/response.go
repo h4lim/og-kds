@@ -13,16 +13,17 @@ import (
 )
 
 type SqlLog struct {
-	ID           uint      `gorm:"primarykey" swaggerignore:"true"`
-	CreatedAt    time.Time `swaggertype:"string" example:"2020-01-03T00:00:00Z"`
-	UpdatedAt    time.Time `swaggertype:"string" example:"2020-01-03T00:00:00Z"`
-	ResponseID   string    `db:"response_id"`
-	Step         string    `db:"step"`
-	Code         string    `db:"code"`
-	Message      string    `db:"message"`
-	FunctionName string    `db:"function_name"`
-	Data         string    `db:"data"`
-	Tracer       string    `db:"tracer"`
+	ID           uint `gorm:"primarykey" swaggerignore:"true"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	ResponseID   string `db:"response_id"`
+	Step         string `db:"step"`
+	Code         string `db:"code"`
+	Message      string `db:"message"`
+	FunctionName string `db:"function_name"`
+	Data         string `db:"data"`
+	Duration     string `db:"duration"`
+	Tracer       string `db:"tracer"`
 }
 
 type RequestBuildGin struct {
