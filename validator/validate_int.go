@@ -8,9 +8,9 @@ import (
 )
 
 type IntValidator interface {
-	Required(errResponse http.Response) IntValidator
-	GreaterThan(threshold int, errResponse http.Response) IntValidator
-	LessThan(threshold int, errResponse http.Response) IntValidator
+	Required(errResponse http.OptSetR) IntValidator
+	GreaterThan(threshold int, errResponse http.OptSetR) IntValidator
+	LessThan(threshold int, errResponse http.OptSetR) IntValidator
 }
 
 type intValidatorContext struct {
@@ -19,32 +19,32 @@ type intValidatorContext struct {
 	ValueInt int64
 }
 
-func (iv *intValidatorContext) Required(errResponse http.Response) IntValidator {
-	if iv.Response.Error == nil && iv.ValueInt == 0 {
+func (iv *intValidatorContext) Required(errResponse http.OptSetR) IntValidator {
+	if iv.Error == nil && iv.ValueInt == 0 {
 		errors := errors.New(iv.Key + " is required")
-		errResponse.Error = &errors
 
-		iv.Response = errResponse
+		iv.optionalData = errResponse
+		iv.Error = &errors
 	}
 	return iv
 }
 
-func (iv *intValidatorContext) GreaterThan(threshold int, errResponse http.Response) IntValidator {
-	if iv.Response.Error == nil && iv.ValueInt < int64(threshold) {
+func (iv *intValidatorContext) GreaterThan(threshold int, errResponse http.OptSetR) IntValidator {
+	if iv.Error == nil && iv.ValueInt < int64(threshold) {
 		errors := errors.New(iv.Key + " is must greater than " + fmt.Sprintf("%d", threshold))
-		errResponse.Error = &errors
 
-		iv.Response = errResponse
+		iv.optionalData = errResponse
+		iv.Error = &errors
 	}
 	return iv
 }
 
-func (iv *intValidatorContext) LessThan(threshold int, errResponse http.Response) IntValidator {
-	if iv.Response.Error == nil && iv.ValueInt > int64(threshold) {
+func (iv *intValidatorContext) LessThan(threshold int, errResponse http.OptSetR) IntValidator {
+	if iv.Error == nil && iv.ValueInt > int64(threshold) {
 		errors := errors.New(iv.Key + " is must less than " + fmt.Sprintf("%d", threshold))
-		errResponse.Error = &errors
 
-		iv.Response = errResponse
+		iv.optionalData = errResponse
+		iv.Error = &errors
 	}
 	return iv
 }

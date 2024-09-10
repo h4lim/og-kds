@@ -8,15 +8,9 @@ type Validator interface {
 	Validate(key string, value interface{}) Validator
 }
 
-type FloatValidator interface {
-	Required(errResponse http.Response) FloatValidator
-	GreaterThan(threshold float64, errResponse http.Response) FloatValidator
-	LessThan(threshold float64, errResponse http.Response) FloatValidator
-	MustNot(disallowedValue float64, errResponse http.Response) FloatValidator
-}
-
 type validatorContext struct {
-	Response http.Response
+	optionalData http.OptSetR
+	Error        *error
 }
 
 func NewValidator() *validatorContext {
@@ -39,9 +33,9 @@ func (vc *validatorContext) Validate(key string, value interface{}) Validator {
 }
 
 func (vc *validatorContext) IsError() bool {
-	return vc.Response.Error != nil
+	return vc.Error != nil
 }
 
-func (vc *validatorContext) GetResponse() http.Response {
-	return vc.Response
+func (vc *validatorContext) GetError() *error {
+	return vc.Error
 }
