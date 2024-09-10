@@ -391,7 +391,7 @@ func (r *Response) logSql() {
 			Step:         _step,
 			Code:         r.Code,
 			Message:      r.Message,
-			FunctionName: _fnName[1] + _fnName[2],
+			FunctionName: _fnName[1] + "." + _fnName[2],
 			Data:         _data,
 			Tracer:       r.Tracer.FileName + ":" + strconv.Itoa(r.Tracer.Line),
 			Duration:     _duration,

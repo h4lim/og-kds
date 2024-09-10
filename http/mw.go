@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,12 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
+
+type MwLogRequestData struct {
+	URL           string              `json:"url"`
+	RequestBody   string              `json:"request_body"`
+	RequestHeader map[string][]string `json:"request_header"`
+}
 
 type mwContext struct {
 	DataOptInitR OptInitR
@@ -90,13 +97,29 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 	}
 
 	if m.DataOptInitR.SqlLogs {
+
+		logEntry := MwLogRequestData{
+			URL:           c.Request.Method + "[" + c.Request.RequestURI + "]",
+			RequestBody:   string(rawData),
+			RequestHeader: c.Request.Header,
+		}
+
+		// Marshal the struct to JSON
+		jsonData, err := json.Marshal(logEntry)
+		if err != nil {
+			fmt.Println("Error marshaling log entry to JSON:", err)
+			return
+		}
+
+		jsonString := string(jsonData)
+
 		data := SqlLog{
 			ResponseID:   strconv.FormatInt(responseId, 10),
 			Step:         1,
 			Code:         "0",
 			Message:      "Success",
 			FunctionName: "mw.DeliveryHandler",
-			Data:         "url: " + c.Request.Method + "[" + c.Request.RequestURI + "]" + "request-header: [" + fmt.Sprintf("%v", c.Request.Header) + "]" + "request-body: [" + string(rawData) + "]",
+			Data:         jsonString,
 			Duration:     fmt.Sprintf("%v", ms) + " ms",
 			Tracer:       "mw.go",
 		}
