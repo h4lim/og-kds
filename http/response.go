@@ -366,16 +366,19 @@ func (r *Response) getMessage() {
 }
 
 func (r *Response) logSql() {
-	go func() {
-		if r.Message == "" {
-			r.getMessage()
-		}
+	_fnName := strings.Split(r.Tracer.FunctionName, ".")
 
-		_fnName := strings.Split(r.Tracer.FunctionName, ".")
+	if r.Message == "" {
+		r.getMessage()
+	}
+
+	_step := GetStep(r.ResponseID)
+
+	go func() {
 
 		data := SqlLog{
 			ResponseID:   strconv.FormatInt(r.ResponseID, 10),
-			Step:         GetStep(r.ResponseID),
+			Step:         _step,
 			Code:         r.Code,
 			Message:      r.Message,
 			FunctionName: _fnName[1] + _fnName[2],
