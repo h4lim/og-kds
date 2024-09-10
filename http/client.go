@@ -30,7 +30,6 @@ type ClientContext struct {
 	ClientRequest ClientRequest
 	PartyResponse *party.Response
 	Error         error
-	DataOptConfig OptConfig
 }
 
 type IClient interface {
@@ -40,15 +39,9 @@ type IClient interface {
 	GetPartyResponse() (*party.Response, error)
 }
 
-func NewClient(ctx ClientRequest, optConfig ...OptConfig) IClient {
-	var _optConfig OptConfig
-	if len(optConfig) > 0 {
-		_optConfig = optConfig[len(optConfig)-1]
-	}
-
+func NewClient(ctx ClientRequest) IClient {
 	return ClientContext{
 		ClientRequest: ctx,
-		DataOptConfig: _optConfig,
 	}
 }
 
@@ -147,7 +140,7 @@ func (c ClientContext) Hit() ClientContext {
 
 	c.PartyResponse = clientResponse
 
-	if c.DataOptConfig.SqlLogs {
+	if OptConfig.SqlLogs {
 		c.logSql(duration)
 	}
 

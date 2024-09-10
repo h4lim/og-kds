@@ -77,7 +77,6 @@ type Response struct {
 	ResponseID       int64
 	Language         string
 	AdditionalTracer []string
-	DataOptConfig    OptConfig
 }
 
 type OptSetR struct {
@@ -87,20 +86,10 @@ type OptSetR struct {
 	Data     any
 }
 
-type OptConfig struct {
-	SqlLogs bool
-}
-
-func InitResponse(responseID int64, language string, optConfig ...OptConfig) Response {
-	var _optConfig OptConfig
-	if len(optConfig) > 0 {
-		_optConfig = optConfig[len(optConfig)-1]
-	}
-
+func InitResponse(responseID int64, language string) Response {
 	return Response{
-		ResponseID:    responseID,
-		Language:      language,
-		DataOptConfig: _optConfig,
+		ResponseID: responseID,
+		Language:   language,
 	}
 }
 
@@ -131,7 +120,7 @@ func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) Response 
 
 	r.debug(true)
 
-	if r.DataOptConfig.SqlLogs {
+	if OptConfig.SqlLogs {
 		r.logSql()
 	}
 
@@ -166,7 +155,7 @@ func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSet
 
 	r.debug(true)
 
-	if r.DataOptConfig.SqlLogs {
+	if OptConfig.SqlLogs {
 		r.logSql()
 	}
 
@@ -208,7 +197,7 @@ func (r *Response) SetAll(newR Response) Response {
 
 	r.debug(true)
 
-	if r.DataOptConfig.SqlLogs {
+	if OptConfig.SqlLogs {
 		r.logSql()
 	}
 

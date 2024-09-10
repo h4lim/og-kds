@@ -13,9 +13,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type OptConfigModel struct {
+	SqlLogs bool
+}
+
 var (
 	UnixTimestamp map[int64]int64
 	Step          map[int64]int
+	OptConfig     OptConfigModel
 )
 
 type PackageInformationModel struct {
