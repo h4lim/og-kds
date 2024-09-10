@@ -83,6 +83,10 @@ func GetDuration(responseId int64) string {
 	return fmt.Sprintf("%v", ms)
 }
 
+func GetStepInt(responseId int64) int {
+	return Step[responseId]
+}
+
 func GetStep(responseId int64) string {
 	return strconv.Itoa(Step[responseId])
 }

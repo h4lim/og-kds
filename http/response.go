@@ -17,7 +17,7 @@ type SqlLog struct {
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	ResponseID   string `db:"response_id"`
-	Step         string `db:"step"`
+	Step         int    `db:"step"`
 	Code         string `db:"code"`
 	Message      string `db:"message"`
 	FunctionName string `db:"function_name"`
@@ -372,7 +372,7 @@ func (r *Response) logSql() {
 		r.getMessage()
 	}
 
-	_step := GetStep(r.ResponseID)
+	_step := GetStepInt(r.ResponseID)
 	_duration := GetDuration(r.ResponseID) + " ms"
 
 	go func() {

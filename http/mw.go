@@ -92,11 +92,11 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 	if m.DataOptInitR.SqlLogs {
 		data := SqlLog{
 			ResponseID:   strconv.FormatInt(responseId, 10),
-			Step:         "1",
+			Step:         1,
 			Code:         "0",
 			Message:      "Success",
 			FunctionName: "mw.DeliveryHandler",
-			Data:         "request-header: [" + fmt.Sprintf("%v", c.Request.Header) + "]" + "request-body: [" + string(rawData) + "]",
+			Data:         "url: " + c.Request.Method + "[" + c.Request.RequestURI + "]" + "request-header: [" + fmt.Sprintf("%v", c.Request.Header) + "]" + "request-body: [" + string(rawData) + "]",
 			Duration:     fmt.Sprintf("%v", ms) + " ms",
 			Tracer:       "mw.go",
 		}
