@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -375,6 +376,14 @@ func (r *Response) logSql() {
 	_step := GetStepInt(r.ResponseID)
 	_duration := GetDuration(r.ResponseID) + " ms"
 
+	var _data string
+	jsonData, err := json.Marshal(r.Data)
+	if err != nil {
+		_data = fmt.Sprintf("%v", r.Data)
+	} else {
+		_data = string(jsonData)
+	}
+
 	go func() {
 
 		data := SqlLog{
@@ -383,7 +392,7 @@ func (r *Response) logSql() {
 			Code:         r.Code,
 			Message:      r.Message,
 			FunctionName: _fnName[1] + _fnName[2],
-			Data:         fmt.Sprintf("%v", r.Data),
+			Data:         _data,
 			Tracer:       r.Tracer.FileName + ":" + strconv.Itoa(r.Tracer.Line),
 			Duration:     _duration,
 		}
