@@ -184,9 +184,21 @@ func (c ClientContext) logSql(duration string) {
 		Url:         c.ClientRequest.URL,
 		HttpMethod:  c.ClientRequest.HttpMethod,
 		Header:      fmt.Sprintf("%v", &c.ClientRequest.Header),
-		RequestBody: *c.ClientRequest.RequestBody,
-		QueryParam:  fmt.Sprintf("%v", *c.ClientRequest.QueryParam),
-		BaseAuth:    *c.ClientRequest.Username + ":" + *c.ClientRequest.Password,
+		RequestBody: "",
+		QueryParam:  "",
+		BaseAuth:    "",
+	}
+
+	if c.ClientRequest.RequestBody != nil {
+		_requestData.RequestBody = *c.ClientRequest.RequestBody
+	}
+
+	if c.ClientRequest.QueryParam != nil {
+		_requestData.QueryParam = fmt.Sprintf("%v", *c.ClientRequest.QueryParam)
+	}
+
+	if c.ClientRequest.Username != nil && c.ClientRequest.Password != nil {
+		_requestData.BaseAuth = *c.ClientRequest.Username + ":" + *c.ClientRequest.Password
 	}
 
 	var _requestDataStr string
@@ -197,10 +209,11 @@ func (c ClientContext) logSql(duration string) {
 		_requestDataStr = string(_requestDataByte)
 	}
 
-	_responseData := responseData{
-		HttpCode:       strconv.Itoa(c.PartyResponse.HttpCode),
-		ResponseHeader: fmt.Sprintf("%v", c.PartyResponse.ResponseHeader),
-		ResponseBody:   c.PartyResponse.ResponseBody,
+	var _responseData responseData
+	if c.PartyResponse != nil {
+		_responseData.HttpCode = strconv.Itoa(c.PartyResponse.HttpCode)
+		_responseData.ResponseHeader = fmt.Sprintf("%v", c.PartyResponse.ResponseHeader)
+		_responseData.ResponseBody = c.PartyResponse.ResponseBody
 	}
 
 	var _responseDataStr string
