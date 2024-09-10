@@ -344,7 +344,7 @@ func (r Response) LogSql() Response {
 			r.getMessage()
 		}
 
-		_fnName := strings.Split(r.Tracer.FunctionName, ",")
+		_fnName := strings.Split(r.Tracer.FunctionName, ".")
 
 		data := SqlLog{
 			ResponseID:   strconv.FormatInt(r.ResponseID, 10),
