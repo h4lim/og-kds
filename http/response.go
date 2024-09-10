@@ -12,6 +12,19 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+type TableLogSQL struct {
+	ID           uint      `gorm:"primarykey" swaggerignore:"true"`
+	CreatedAt    time.Time `swaggertype:"string" example:"2020-01-03T00:00:00Z"`
+	UpdatedAt    time.Time `swaggertype:"string" example:"2020-01-03T00:00:00Z"`
+	ResponseID   string    `db:"response_id"`
+	Step         string    `db:"step"`
+	Code         string    `db:"code"`
+	Message      string    `db:"message"`
+	FunctionName string    `db:"function_name"`
+	Data         string    `db:"data"`
+	Tracer       string    `db:"tracer"`
+}
+
 type RequestBuildGin struct {
 	Code       string `json:"code"`
 	Message    string `json:"message"`
@@ -323,4 +336,28 @@ func (r *Response) getMessage() {
 		r.Message = "unknown message"
 	}
 
+}
+
+func (r *Response) LogSql() Response {
+	go func() {
+		if r.Message == "" {
+			r.getMessage()
+		}
+
+		_fnName := strings.Split(r.Tracer.FunctionName, ",")
+
+		data := TableLogSQL{
+			ResponseID:   strconv.FormatInt(r.ResponseID, 10),
+			Step:         GetStep(r.ResponseID),
+			Code:         r.Code,
+			Message:      r.Message,
+			FunctionName: _fnName[1] + _fnName[2],
+			Data:         fmt.Sprintf("%v", r.Data),
+			Tracer:       r.Tracer.FileName + ":" + strconv.Itoa(r.Tracer.Line),
+		}
+
+		_ = infra.GormDB.Debug().Create(&data)
+	}()
+
+	return *r
 }
