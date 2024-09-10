@@ -84,31 +84,14 @@ type OptSetR struct {
 	Data     any
 }
 
-type IResponse interface {
-	SetSuccessR(Tracer TracerModel, optData ...OptSetR) *Response
-	SetErrorR(Error *error, Tracer TracerModel, optData ...OptSetR) *Response
-	SetAll(newR Response) *Response
-	SetAdditionalTracer(additionalTracer string) *Response
-	SetCode(newCode string) *Response
-	SetError(newError *error) *Response
-	BuildGinResponse() (int, any)
-	BuildGinResponseWithData(data any) (int, any)
-	BuildGinResponseSnap() (int, any)
-	BuildGinResponseSnapWithData(data any) (int, any)
-	IsError() bool
-	Debug(nextStep bool)
-	GetMessage()
-	LogSql() *Response
-}
-
-func InitResponse(responseID int64, language string) IResponse {
-	return &Response{
+func InitResponse(responseID int64, language string) Response {
+	return Response{
 		ResponseID: responseID,
 		Language:   language,
 	}
 }
 
-func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) *Response {
+func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) Response {
 	r.Tracer = Tracer
 
 	var _optData OptSetR
@@ -130,15 +113,15 @@ func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) *Response
 	r.Data = _optData.Data
 
 	if r.Message == "" {
-		r.GetMessage()
+		r.getMessage()
 	}
 
-	r.Debug(true)
+	r.debug(true)
 
-	return r
+	return *r
 }
 
-func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSetR) *Response {
+func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSetR) Response {
 	r.Error = Error
 	r.Tracer = Tracer
 
@@ -161,20 +144,20 @@ func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSet
 	r.Data = _optData.Data
 
 	if r.Message == "" {
-		r.GetMessage()
+		r.getMessage()
 	}
 
-	r.Debug(true)
+	r.debug(true)
 
-	return r
+	return *r
 }
 
-func (r *Response) SetAdditionalTracer(additionalTracer string) *Response {
+func (r *Response) SetAdditionalTracer(additionalTracer string) Response {
 	r.AdditionalTracer = append(r.AdditionalTracer, additionalTracer)
-	return r
+	return *r
 }
 
-func (r *Response) SetAll(newR Response) *Response {
+func (r *Response) SetAll(newR Response) Response {
 
 	if newR.Error != nil {
 		if newR.HttpCode == 0 {
@@ -198,17 +181,17 @@ func (r *Response) SetAll(newR Response) *Response {
 	r.Error = newR.Error
 	r.Tracer = newR.Tracer
 
-	r.GetMessage()
-	r.Debug(true)
+	r.getMessage()
+	r.debug(true)
 
-	return r
+	return *r
 }
 
-func (r *Response) SetCode(newCode string) *Response {
+func (r Response) SetCode(newCode string) Response {
 	previousCode := r.Code
 	r.Code = newCode
 
-	r.GetMessage()
+	r.getMessage()
 
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
@@ -218,12 +201,12 @@ func (r *Response) SetCode(newCode string) *Response {
 		infra.ZapLog.Debug(strconv.FormatInt(r.ResponseID, 10), zapFields...)
 	}
 
-	r.Debug(false)
+	r.debug(false)
 
 	return r
 }
 
-func (r *Response) SetError(newError *error) *Response {
+func (r *Response) SetError(newError *error) Response {
 
 	previousError := r.Error
 	r.Error = newError
@@ -241,12 +224,12 @@ func (r *Response) SetError(newError *error) *Response {
 		infra.ZapLog.Debug(strconv.FormatInt(r.ResponseID, 10), zapFields...)
 	}
 
-	r.Debug(false)
+	r.debug(false)
 
-	return r
+	return *r
 }
 
-func (r *Response) BuildGinResponse() (int, any) {
+func (r Response) BuildGinResponse() (int, any) {
 
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
@@ -258,7 +241,7 @@ func (r *Response) BuildGinResponse() (int, any) {
 	}
 }
 
-func (r *Response) BuildGinResponseWithData(data any) (int, any) {
+func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 	r.Data = data
 	delete(UnixTimestamp, r.ResponseID)
@@ -272,7 +255,7 @@ func (r *Response) BuildGinResponseWithData(data any) (int, any) {
 	}
 }
 
-func (r *Response) BuildGinResponseSnap() (int, any) {
+func (r Response) BuildGinResponseSnap() (int, any) {
 
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
@@ -284,7 +267,7 @@ func (r *Response) BuildGinResponseSnap() (int, any) {
 	}
 }
 
-func (r *Response) BuildGinResponseSnapWithData(data any) (int, any) {
+func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 	r.Data = data
 	delete(UnixTimestamp, r.ResponseID)
@@ -302,7 +285,7 @@ func (r *Response) IsError() bool {
 	return r.Error != nil
 }
 
-func (r *Response) Debug(nextStep bool) {
+func (r *Response) debug(nextStep bool) {
 
 	if infra.ZapLog != nil {
 
@@ -338,7 +321,7 @@ func (r *Response) Debug(nextStep bool) {
 
 }
 
-func (r *Response) GetMessage() {
+func (r *Response) getMessage() {
 
 	switch {
 	case strings.ToUpper(r.Language) == "ID":
@@ -355,10 +338,10 @@ func (r *Response) GetMessage() {
 
 }
 
-func (r *Response) LogSql() *Response {
+func (r Response) LogSql() Response {
 	go func() {
 		if r.Message == "" {
-			r.GetMessage()
+			r.getMessage()
 		}
 
 		_fnName := strings.Split(r.Tracer.FunctionName, ",")
