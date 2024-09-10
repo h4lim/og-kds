@@ -75,6 +75,7 @@ type Response struct {
 	ResponseID       int64
 	Language         string
 	AdditionalTracer []string
+	DataOptInitR     OptInitR
 }
 
 type OptSetR struct {
@@ -84,10 +85,20 @@ type OptSetR struct {
 	Data     any
 }
 
-func InitResponse(responseID int64, language string) Response {
+type OptInitR struct {
+	SqlLogs bool
+}
+
+func InitResponse(responseID int64, language string, optData ...OptInitR) Response {
+	var _optData OptInitR
+	if len(optData) > 0 {
+		_optData = optData[len(optData)-1]
+	}
+
 	return Response{
-		ResponseID: responseID,
-		Language:   language,
+		ResponseID:   responseID,
+		Language:     language,
+		DataOptInitR: _optData,
 	}
 }
 
@@ -117,6 +128,10 @@ func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) Response 
 	}
 
 	r.debug(true)
+
+	if r.DataOptInitR.SqlLogs {
+		r.logSql()
+	}
 
 	return *r
 }
@@ -148,6 +163,10 @@ func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSet
 	}
 
 	r.debug(true)
+
+	if r.DataOptInitR.SqlLogs {
+		r.logSql()
+	}
 
 	return *r
 }
@@ -181,8 +200,15 @@ func (r *Response) SetAll(newR Response) Response {
 	r.Error = newR.Error
 	r.Tracer = newR.Tracer
 
-	r.getMessage()
+	if r.Message == "" {
+		r.getMessage()
+	}
+
 	r.debug(true)
+
+	if r.DataOptInitR.SqlLogs {
+		r.logSql()
+	}
 
 	return *r
 }
@@ -338,7 +364,7 @@ func (r *Response) getMessage() {
 
 }
 
-func (r Response) LogSql() Response {
+func (r *Response) logSql() {
 	go func() {
 		if r.Message == "" {
 			r.getMessage()
@@ -358,6 +384,4 @@ func (r Response) LogSql() Response {
 
 		_ = infra.GormDB.Debug().Create(&data)
 	}()
-
-	return r
 }
