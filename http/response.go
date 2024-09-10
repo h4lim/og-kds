@@ -84,14 +84,14 @@ type OptSetR struct {
 	Data     any
 }
 
-func InitResponse(responseID int64, language string) Response {
-	return Response{
+func InitResponse(responseID int64, language string) *Response {
+	return &Response{
 		ResponseID: responseID,
 		Language:   language,
 	}
 }
 
-func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) Response {
+func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) *Response {
 	r.Tracer = Tracer
 
 	var _optData OptSetR
@@ -118,10 +118,10 @@ func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) Response 
 
 	r.debug(true)
 
-	return *r
+	return r
 }
 
-func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSetR) Response {
+func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSetR) *Response {
 	r.Error = Error
 	r.Tracer = Tracer
 
@@ -149,15 +149,15 @@ func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSet
 
 	r.debug(true)
 
-	return *r
+	return r
 }
 
-func (r *Response) SetAdditionalTracer(additionalTracer string) Response {
+func (r *Response) SetAdditionalTracer(additionalTracer string) *Response {
 	r.AdditionalTracer = append(r.AdditionalTracer, additionalTracer)
-	return *r
+	return r
 }
 
-func (r *Response) SetAll(newR Response) Response {
+func (r *Response) SetAll(newR Response) *Response {
 
 	if newR.Error != nil {
 		if newR.HttpCode == 0 {
@@ -184,10 +184,10 @@ func (r *Response) SetAll(newR Response) Response {
 	r.getMessage()
 	r.debug(true)
 
-	return *r
+	return r
 }
 
-func (r Response) SetCode(newCode string) Response {
+func (r *Response) SetCode(newCode string) *Response {
 	previousCode := r.Code
 	r.Code = newCode
 
@@ -206,7 +206,7 @@ func (r Response) SetCode(newCode string) Response {
 	return r
 }
 
-func (r *Response) SetError(newError *error) Response {
+func (r *Response) SetError(newError *error) *Response {
 
 	previousError := r.Error
 	r.Error = newError
@@ -226,10 +226,10 @@ func (r *Response) SetError(newError *error) Response {
 
 	r.debug(false)
 
-	return *r
+	return r
 }
 
-func (r Response) BuildGinResponse() (int, any) {
+func (r *Response) BuildGinResponse() (int, any) {
 
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
@@ -241,7 +241,7 @@ func (r Response) BuildGinResponse() (int, any) {
 	}
 }
 
-func (r Response) BuildGinResponseWithData(data any) (int, any) {
+func (r *Response) BuildGinResponseWithData(data any) (int, any) {
 
 	r.Data = data
 	delete(UnixTimestamp, r.ResponseID)
@@ -255,7 +255,7 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 	}
 }
 
-func (r Response) BuildGinResponseSnap() (int, any) {
+func (r *Response) BuildGinResponseSnap() (int, any) {
 
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
@@ -267,7 +267,7 @@ func (r Response) BuildGinResponseSnap() (int, any) {
 	}
 }
 
-func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
+func (r *Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 	r.Data = data
 	delete(UnixTimestamp, r.ResponseID)
@@ -338,7 +338,7 @@ func (r *Response) getMessage() {
 
 }
 
-func (r *Response) LogSql() Response {
+func (r *Response) LogSql() *Response {
 	go func() {
 		if r.Message == "" {
 			r.getMessage()
@@ -359,5 +359,5 @@ func (r *Response) LogSql() Response {
 		_ = infra.GormDB.Debug().Create(&data)
 	}()
 
-	return *r
+	return r
 }
