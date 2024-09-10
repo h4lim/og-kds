@@ -373,6 +373,7 @@ func (r *Response) logSql() {
 	}
 
 	_step := GetStep(r.ResponseID)
+	_duration := GetDuration(r.ResponseID) + " ms"
 
 	go func() {
 
@@ -384,6 +385,7 @@ func (r *Response) logSql() {
 			FunctionName: _fnName[1] + _fnName[2],
 			Data:         fmt.Sprintf("%v", r.Data),
 			Tracer:       r.Tracer.FileName + ":" + strconv.Itoa(r.Tracer.Line),
+			Duration:     _duration,
 		}
 
 		_ = infra.GormDB.Debug().Create(&data)
