@@ -84,7 +84,24 @@ type OptSetR struct {
 	Data     any
 }
 
-func InitResponse(responseID int64, language string) *Response {
+type IResponse interface {
+	SetSuccessR(Tracer TracerModel, optData ...OptSetR) *Response
+	SetErrorR(Error *error, Tracer TracerModel, optData ...OptSetR) *Response
+	SetAll(newR Response) *Response
+	SetAdditionalTracer(additionalTracer string) *Response
+	SetCode(newCode string) *Response
+	SetError(newError *error) *Response
+	BuildGinResponse() (int, any)
+	BuildGinResponseWithData(data any) (int, any)
+	BuildGinResponseSnap() (int, any)
+	BuildGinResponseSnapWithData(data any) (int, any)
+	IsError() bool
+	Debug(nextStep bool)
+	GetMessage()
+	LogSql() *Response
+}
+
+func InitResponse(responseID int64, language string) IResponse {
 	return &Response{
 		ResponseID: responseID,
 		Language:   language,
@@ -113,10 +130,10 @@ func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) *Response
 	r.Data = _optData.Data
 
 	if r.Message == "" {
-		r.getMessage()
+		r.GetMessage()
 	}
 
-	r.debug(true)
+	r.Debug(true)
 
 	return r
 }
@@ -144,10 +161,10 @@ func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSet
 	r.Data = _optData.Data
 
 	if r.Message == "" {
-		r.getMessage()
+		r.GetMessage()
 	}
 
-	r.debug(true)
+	r.Debug(true)
 
 	return r
 }
@@ -181,8 +198,8 @@ func (r *Response) SetAll(newR Response) *Response {
 	r.Error = newR.Error
 	r.Tracer = newR.Tracer
 
-	r.getMessage()
-	r.debug(true)
+	r.GetMessage()
+	r.Debug(true)
 
 	return r
 }
@@ -191,7 +208,7 @@ func (r *Response) SetCode(newCode string) *Response {
 	previousCode := r.Code
 	r.Code = newCode
 
-	r.getMessage()
+	r.GetMessage()
 
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
@@ -201,7 +218,7 @@ func (r *Response) SetCode(newCode string) *Response {
 		infra.ZapLog.Debug(strconv.FormatInt(r.ResponseID, 10), zapFields...)
 	}
 
-	r.debug(false)
+	r.Debug(false)
 
 	return r
 }
@@ -224,7 +241,7 @@ func (r *Response) SetError(newError *error) *Response {
 		infra.ZapLog.Debug(strconv.FormatInt(r.ResponseID, 10), zapFields...)
 	}
 
-	r.debug(false)
+	r.Debug(false)
 
 	return r
 }
@@ -285,7 +302,7 @@ func (r *Response) IsError() bool {
 	return r.Error != nil
 }
 
-func (r *Response) debug(nextStep bool) {
+func (r *Response) Debug(nextStep bool) {
 
 	if infra.ZapLog != nil {
 
@@ -321,7 +338,7 @@ func (r *Response) debug(nextStep bool) {
 
 }
 
-func (r *Response) getMessage() {
+func (r *Response) GetMessage() {
 
 	switch {
 	case strings.ToUpper(r.Language) == "ID":
@@ -341,7 +358,7 @@ func (r *Response) getMessage() {
 func (r *Response) LogSql() *Response {
 	go func() {
 		if r.Message == "" {
-			r.getMessage()
+			r.GetMessage()
 		}
 
 		_fnName := strings.Split(r.Tracer.FunctionName, ",")
