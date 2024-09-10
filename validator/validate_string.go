@@ -2,6 +2,7 @@ package validator
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,7 +15,7 @@ type StringValidator interface {
 	IsInList(list string, errResponse http.Response) StringValidator
 	IsMustSameWith(allowedValue string, errResponse http.Response) StringValidator
 	IsMustNotSameWith(disallowedValue string, errResponse http.Response) StringValidator
-	IsISO8601(errResponse http.Response) StringValidator
+	IsAlphaNumeric(errResponse http.Response) StringValidator
 }
 
 type StringValidatorContext struct {
@@ -87,6 +88,21 @@ func (vs *StringValidatorContext) IsISO8601(errResponse http.Response) StringVal
 
 			vs.Response = errResponse
 		}
+	}
+	return vs
+}
+
+func (vs *StringValidatorContext) IsAlphaNumeric(errResponse http.Response) StringValidator {
+	if vs.Response.Error == nil {
+		re := regexp.MustCompile("^[a-zA-Z0-9]+$")
+		isAlphanumeric := re.MatchString(vs.ValueStr)
+		if !isAlphanumeric {
+			errors := errors.New(vs.Key + " must be in a alphanumeric format")
+			errResponse.Error = &errors
+
+			vs.Response = errResponse
+		}
+
 	}
 	return vs
 }
