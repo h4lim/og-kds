@@ -84,15 +84,13 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 		zapFields = append(zapFields, zap.String("url", c.Request.RequestURI))
 		zapFields = append(zapFields, zap.String("header", fmt.Sprintf("%v", c.Request.Header)))
 
-		rawData, err := c.GetRawData()
 		if errGetRawData != nil {
-			zapFields = append(zapFields, zap.String("error", err.Error()))
+			zapFields = append(zapFields, zap.String("error", errGetRawData.Error()))
 			c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
 			return
 		} else {
 			zapFields = append(zapFields, zap.String("request-body", string(rawData)))
 		}
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(rawData))
 		infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
 	}
 
@@ -129,6 +127,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 		_ = infra.GormDB.Debug().Create(&data)
 	}
 
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(rawData))
 	c.Set("response-id", responseId)
 	c.Next()
 }
