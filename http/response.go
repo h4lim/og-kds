@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type TableLogSQL struct {
+type SqlLog struct {
 	ID           uint      `gorm:"primarykey" swaggerignore:"true"`
 	CreatedAt    time.Time `swaggertype:"string" example:"2020-01-03T00:00:00Z"`
 	UpdatedAt    time.Time `swaggertype:"string" example:"2020-01-03T00:00:00Z"`
@@ -346,7 +346,7 @@ func (r *Response) LogSql() Response {
 
 		_fnName := strings.Split(r.Tracer.FunctionName, ",")
 
-		data := TableLogSQL{
+		data := SqlLog{
 			ResponseID:   strconv.FormatInt(r.ResponseID, 10),
 			Step:         GetStep(r.ResponseID),
 			Code:         r.Code,
