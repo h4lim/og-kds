@@ -224,7 +224,7 @@ func (r *Response) SetError(newError *error) Response {
 			zapFields = append(zapFields, zap.String("error-info", "New Error "+fmt.Sprintf("%v", *r.Error)))
 		}
 
-		infra.ZapLog.Debug(strconv.FormatInt(r.ResponseID, 10), zapFields...)
+		infra.ZapLog.Error(strconv.FormatInt(r.ResponseID, 10), zapFields...)
 	}
 
 	r.debug(false)
@@ -308,18 +308,18 @@ func (r *Response) debug(nextStep bool) {
 		zapFields = append(zapFields, zap.Int("http-code", r.HttpCode))
 		zapFields = append(zapFields, zap.String("code", r.Code))
 		zapFields = append(zapFields, zap.String("message ", r.Message))
-
-		if r.Error != nil {
-			zapFields = append(zapFields, zap.String("error", fmt.Sprintf("%v", *r.Error)))
-		}
-
 		zapFields = append(zapFields, zap.String("data", fmt.Sprintf("%v", r.Data)))
 		zapFields = append(zapFields, zap.String("filename", r.Tracer.FileName))
 		zapFields = append(zapFields, zap.String("function-name", r.Tracer.FunctionName))
 		zapFields = append(zapFields, zap.Int("line", r.Tracer.Line))
 		zapFields = append(zapFields, zap.String("trace", r.Tracer.FileName+":"+strconv.Itoa(r.Tracer.Line)))
 
-		infra.ZapLog.Debug(strconv.FormatInt(r.ResponseID, 10), zapFields...)
+		if r.Error != nil {
+			zapFields = append(zapFields, zap.String("error", fmt.Sprintf("%v", *r.Error)))
+			infra.ZapLog.Error(strconv.FormatInt(r.ResponseID, 10), zapFields...)
+		} else {
+			infra.ZapLog.Debug(strconv.FormatInt(r.ResponseID, 10), zapFields...)
+		}
 	}
 
 }

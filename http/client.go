@@ -109,13 +109,6 @@ func (c ClientContext) Hit() ClientContext {
 		clientParty.SetBaseAuth(*c.ClientRequest.Username, *c.ClientRequest.Password)
 	}
 
-	clientResponse, err := clientParty.HitClient()
-	if err != nil {
-		zapFields = append(zapFields, zap.String("query-param",
-			fmt.Sprintf("%v", *err)))
-		c.Error = *err
-	}
-
 	zapFields = append(zapFields, zap.String("step", GetNextStep(c.ClientRequest.ResponseId)))
 
 	duration := GetDuration(c.ClientRequest.ResponseId) + " ms"
@@ -124,6 +117,19 @@ func (c ClientContext) Hit() ClientContext {
 	totalDuration := time.Now().UnixNano() - c.ClientRequest.ResponseId
 	ms := float64(totalDuration) / float64(time.Millisecond)
 	zapFields = append(zapFields, zap.String("total-duration", fmt.Sprintf("%v", ms)+" ms"))
+
+	clientResponse, err := clientParty.HitClient()
+	if err != nil {
+		zapFields = append(zapFields, zap.String("error",
+			fmt.Sprintf("%v", *err)))
+
+		if infra.ZapLog != nil {
+			infra.ZapLog.Error(strconv.FormatInt(c.ClientRequest.ResponseId, 10), zapFields...)
+		}
+
+		c.Error = *err
+		return c
+	}
 
 	zapFields = append(zapFields, zap.Int("http-code",
 		clientResponse.HttpCode))

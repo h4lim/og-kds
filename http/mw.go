@@ -85,12 +85,14 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 		if errGetRawData != nil {
 			zapFields = append(zapFields, zap.String("error", errGetRawData.Error()))
+			infra.ZapLog.Error(strconv.FormatInt(responseId, 10), zapFields...)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
 			return
 		} else {
+			infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
 			zapFields = append(zapFields, zap.String("request-body", string(rawData)))
 		}
-		infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
+
 	}
 
 	if OptConfig.SqlLogs {
@@ -101,7 +103,6 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 			RequestHeader: c.Request.Header,
 		}
 
-		// Marshal the struct to JSON
 		jsonData, err := json.Marshal(logEntry)
 		if err != nil {
 			fmt.Println("Error marshaling log entry to JSON:", err)
