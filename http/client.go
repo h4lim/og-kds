@@ -230,6 +230,8 @@ func (c ClientContext) logSql(duration string) {
 		_logDataStr = string(_logDataByte)
 	}
 
+	_requestId := RequestId[c.ClientRequest.ResponseId]
+
 	go func() {
 
 		data := SqlLog{
@@ -241,6 +243,7 @@ func (c ClientContext) logSql(duration string) {
 			Data:         _logDataStr,
 			Tracer:       "",
 			Duration:     _duration,
+			RequestID:    _requestId,
 		}
 
 		_ = infra.GormDB.Debug().Create(&data)

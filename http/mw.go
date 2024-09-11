@@ -56,6 +56,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 	unixResponse := make(map[int64]int64)
 	step := make(map[int64]int)
+	requestId := make(map[int64]string)
 
 	unixResponse[responseId] = responseId
 	step[responseId] = 1
@@ -66,6 +67,9 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 	rawData, errGetRawData := c.GetRawData()
 	duration := time.Now().UnixNano() - responseId
 	ms := duration / int64(time.Millisecond)
+
+	_requestId := GetRequestIdFromRequest(rawData)
+	requestId[responseId] = _requestId
 
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
@@ -116,6 +120,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 			Data:         jsonString,
 			Duration:     fmt.Sprintf("%v", ms) + " ms",
 			Tracer:       tracer.FileName + ":" + strconv.Itoa(tracer.Line),
+			RequestID:    _requestId,
 		}
 
 		_ = infra.GormDB.Debug().Create(&data)

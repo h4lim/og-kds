@@ -359,6 +359,8 @@ func (r *Response) logSql() {
 		_data = string(jsonData)
 	}
 
+	_requestId := RequestId[r.ResponseID]
+
 	go func() {
 
 		data := SqlLog{
@@ -370,6 +372,7 @@ func (r *Response) logSql() {
 			Data:         _data,
 			Tracer:       r.Tracer.FileName + ":" + strconv.Itoa(r.Tracer.Line),
 			Duration:     _duration,
+			RequestID:    _requestId,
 		}
 
 		_ = infra.GormDB.Debug().Create(&data)

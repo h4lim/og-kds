@@ -17,7 +17,6 @@ type OptConfigModel struct {
 	SqlLogs         bool
 	RequestIdAlias  string
 	ResponseIdAlias string
-	ClientIdAlias   string
 }
 
 type SqlLog struct {
@@ -26,7 +25,6 @@ type SqlLog struct {
 	UpdatedAt    time.Time
 	RequestID    string `db:"response_id"`
 	ResponseID   string `db:"response_id"`
-	ClientID     string `db:"client_id"`
 	Step         int    `db:"step"`
 	Code         string `db:"code"`
 	Message      string `db:"message"`
@@ -40,7 +38,6 @@ var (
 	UnixTimestamp map[int64]int64
 	Step          map[int64]int
 	RequestId     map[int64]string
-	ClientId      map[int64]string
 	OptConfig     OptConfigModel
 )
 
@@ -171,4 +168,15 @@ func getLanguage(c *gin.Context) string {
 	}
 
 	return strLanguage
+}
+
+func GetRequestIdFromRequest(rawBody []byte) string {
+	regex := regexp.MustCompile(`"` + "request_id" + `":\s*"(.*?)"`)
+	match := regex.FindSubmatch(rawBody)
+
+	if len(match) > 1 {
+		return string(match[1])
+	}
+
+	return ""
 }
