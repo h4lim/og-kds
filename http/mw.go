@@ -70,6 +70,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 	_requestId := GetRequestIdFromRequest(rawData)
 	requestId[responseId] = _requestId
+	RequestId = requestId
 
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
