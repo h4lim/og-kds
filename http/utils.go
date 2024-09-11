@@ -14,12 +14,33 @@ import (
 )
 
 type OptConfigModel struct {
-	SqlLogs bool
+	SqlLogs         bool
+	RequestIdAlias  string
+	ResponseIdAlias string
+	ClientIdAlias   string
+}
+
+type SqlLog struct {
+	ID           uint `gorm:"primarykey" swaggerignore:"true"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	RequestID    string `db:"response_id"`
+	ResponseID   string `db:"response_id"`
+	ClientID     string `db:"client_id"`
+	Step         int    `db:"step"`
+	Code         string `db:"code"`
+	Message      string `db:"message"`
+	FunctionName string `db:"function_name"`
+	Data         string `db:"data"`
+	Duration     string `db:"duration"`
+	Tracer       string `db:"tracer"`
 }
 
 var (
 	UnixTimestamp map[int64]int64
 	Step          map[int64]int
+	RequestId     map[int64]string
+	ClientId      map[int64]string
 	OptConfig     OptConfigModel
 )
 

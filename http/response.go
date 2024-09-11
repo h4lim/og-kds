@@ -13,20 +13,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type SqlLog struct {
-	ID           uint `gorm:"primarykey" swaggerignore:"true"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	ResponseID   string `db:"response_id"`
-	Step         int    `db:"step"`
-	Code         string `db:"code"`
-	Message      string `db:"message"`
-	FunctionName string `db:"function_name"`
-	Data         string `db:"data"`
-	Duration     string `db:"duration"`
-	Tracer       string `db:"tracer"`
-}
-
 type RequestBuildGin struct {
 	Code       string `json:"code"`
 	Message    string `json:"message"`

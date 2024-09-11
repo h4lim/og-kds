@@ -53,8 +53,10 @@ func (m mwContext) CorsPolicy(c *gin.Context) {
 func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 	responseId := time.Now().UnixNano()
+
 	unixResponse := make(map[int64]int64)
 	step := make(map[int64]int)
+
 	unixResponse[responseId] = responseId
 	step[responseId] = 1
 
