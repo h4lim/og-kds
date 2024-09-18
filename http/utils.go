@@ -152,20 +152,25 @@ func getLanguage(c *gin.Context) string {
 
 func GetRequestIdFromRequest(rawBody []byte) string {
 	var regex *regexp.Regexp
+	var requestId string
 
 	if OptConfig.RequestIdAlias != "" {
 		regex = regexp.MustCompile(`"(` + OptConfig.RequestIdAlias + `)":\s*"(.*?)"`)
+		match := regex.FindSubmatch(rawBody)
+
+		if len(match) > 2 {
+			requestId = string(match[2])
+		}
 	} else {
 		regex = regexp.MustCompile(`"` + "request_id" + `":\s*"(.*?)"`)
+		match := regex.FindSubmatch(rawBody)
+
+		if len(match) > 1 {
+			requestId = string(match[1])
+		}
 	}
 
-	match := regex.FindSubmatch(rawBody)
-
-	if len(match) > 1 {
-		return string(match[1])
-	}
-
-	return ""
+	return requestId
 }
 
 func getFunctionNameWithDomain(url, defaultName string) string {
