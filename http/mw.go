@@ -2,13 +2,13 @@ package http
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
 
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-gonic/gin"
 	"github.com/h4lim/og-kds/infra"
 	"go.uber.org/zap"
@@ -19,6 +19,11 @@ type MwLogRequestData struct {
 	URL           string              `json:"url"`
 	RequestBody   string              `json:"request_body"`
 	RequestHeader map[string][]string `json:"request_header"`
+}
+
+type MwMqttRequestData struct {
+	Topic   string `json:"topic"`
+	Payload string `json:"payload"`
 }
 
 type mwContext struct {
@@ -89,8 +94,8 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
 			return
 		} else {
-			infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
 			zapFields = append(zapFields, zap.String("request-body", string(rawData)))
+			infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
 		}
 
 	}
@@ -103,14 +108,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 			RequestHeader: c.Request.Header,
 		}
 
-		jsonData, err := json.Marshal(logEntry)
-		if err != nil {
-			fmt.Println("Error marshaling log entry to JSON:", err)
-			return
-		}
-
-		jsonString := string(jsonData)
-
+		jsonString := string(jsonMarshal(logEntry))
 		tracer := Tracer()
 
 		data := SqlLog{
@@ -125,10 +123,93 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 			RequestID:    _requestId,
 		}
 
-		_ = infra.GormDB.Debug().Create(&data)
+		go func() {
+			_ = infra.GormDB.Debug().Create(&data)
+		}()
 	}
 
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(rawData))
 	c.Set("response-id", responseId)
 	c.Next()
 }
+
+func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) {
+	responseId := time.Now().UnixNano()
+
+	unixResponse := make(map[int64]int64)
+	step := make(map[int64]int)
+	requestId := make(map[int64]string)
+
+	unixResponse[responseId] = responseId
+	step[responseId] = 1
+
+	UnixTimestamp = unixResponse
+	Step = step
+
+	rawData := msg.Payload()
+	duration := time.Now().UnixNano() - responseId
+	ms := duration / int64(time.Millisecond)
+
+	_requestId := GetRequestIdFromRequest(rawData)
+	requestId[responseId] = _requestId
+	RequestId = requestId
+
+	if infra.ZapLog != nil {
+		zapFields := []zapcore.Field{}
+		zapFields = append(zapFields, zap.Int("step", 1))
+
+		zapFields = append(zapFields, zap.String("duration", fmt.Sprintf("%v", ms)+" ms"))
+		zapFields = append(zapFields, zap.String("total-duration", fmt.Sprintf("%v", ms)+" ms"))
+		zapFields = append(zapFields, zap.String("mqtt-topic", msg.Topic()))
+
+		zapFields = append(zapFields, zap.String("mqtt-payload", string(rawData)))
+		infra.ZapLog.Debug(strconv.FormatInt(responseId, 10), zapFields...)
+
+	}
+
+	if OptConfig.SqlLogs {
+
+		logEntry := MwMqttRequestData{
+			Topic:   msg.Topic(),
+			Payload: string(rawData),
+		}
+
+		jsonString := string(jsonMarshal(logEntry))
+		tracer := Tracer()
+
+		data := SqlLog{
+			ResponseID:   strconv.FormatInt(responseId, 10),
+			Step:         1,
+			Code:         "0",
+			Message:      "Success",
+			FunctionName: tracer.FunctionName,
+			Data:         jsonString,
+			Duration:     fmt.Sprintf("%v", ms) + " ms",
+			Tracer:       tracer.FileName + ":" + strconv.Itoa(tracer.Line),
+			RequestID:    _requestId,
+		}
+
+		go func() {
+			_ = infra.GormDB.Debug().Create(&data)
+		}()
+	}
+}
+
+// func (m mwContext) SetInitialTracerData(_requestId string) {
+
+// 	unixResponse := make(map[int64]int64)
+// 	step := make(map[int64]int)
+// 	requestId := make(map[int64]string)
+
+// 	responseId := time.Now().UnixNano()
+// 	unixResponse[responseId] = responseId
+// 	step[responseId] = 1
+// 	requestId[responseId] = _requestId
+
+// 	UnixTimestamp = unixResponse
+// 	Step = step
+// 	RequestId = requestId
+
+// 	duration := time.Now().UnixNano() - responseId
+// 	ms := duration / int64(time.Millisecond)
+// }

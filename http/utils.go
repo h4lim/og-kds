@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"regexp"
@@ -12,27 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
-
-type OptConfigModel struct {
-	SqlLogs         bool
-	RequestIdAlias  string
-	ResponseIdAlias string
-}
-
-type SqlLog struct {
-	ID           uint `gorm:"primarykey" swaggerignore:"true"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	RequestID    string `db:"response_id"`
-	ResponseID   string `db:"response_id"`
-	Step         int    `db:"step"`
-	Code         string `db:"code"`
-	Message      string `db:"message"`
-	FunctionName string `db:"function_name"`
-	Data         string `db:"data"`
-	Duration     string `db:"duration"`
-	Tracer       string `db:"tracer"`
-}
 
 var (
 	UnixTimestamp map[int64]int64
@@ -171,7 +151,14 @@ func getLanguage(c *gin.Context) string {
 }
 
 func GetRequestIdFromRequest(rawBody []byte) string {
-	regex := regexp.MustCompile(`"` + "request_id" + `":\s*"(.*?)"`)
+	var regex *regexp.Regexp
+
+	if OptConfig.RequestIdAlias != "" {
+		regex = regexp.MustCompile(`"(` + OptConfig.RequestIdAlias + `)":\s*"(.*?)"`)
+	} else {
+		regex = regexp.MustCompile(`"` + "request_id" + `":\s*"(.*?)"`)
+	}
+
 	match := regex.FindSubmatch(rawBody)
 
 	if len(match) > 1 {
@@ -179,4 +166,22 @@ func GetRequestIdFromRequest(rawBody []byte) string {
 	}
 
 	return ""
+}
+
+func getFunctionNameWithDomain(url, defaultName string) string {
+	// Extract domain from URL
+	parts := strings.Split(url, "://")
+	if len(parts) > 1 {
+		domain := strings.Split(parts[1], "/")[0]
+		return domain + "/" + defaultName
+	}
+	return defaultName
+}
+
+func jsonMarshal(v interface{}) string {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return fmt.Sprintf("%v", v)
+	}
+	return string(b)
 }

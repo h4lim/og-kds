@@ -32,6 +32,11 @@ type ClientContext struct {
 	Error         error
 }
 
+type logData struct {
+	RequestData  ClientRequest   `json:"request_data"`
+	ResponseData *party.Response `json:"response_data"`
+}
+
 type IClient interface {
 	Hit() ClientContext
 	MustHttpOk200() ClientContext
@@ -154,102 +159,19 @@ func (c ClientContext) Hit() ClientContext {
 }
 
 func (c ClientContext) logSql(duration string) {
-	_fnName := "ClientParty.HitExternalApi"
-
-	_step := GetStepInt(c.ClientRequest.ResponseId)
-	_duration := duration
-
-	type requestData struct {
-		Url         string `json:"url"`
-		HttpMethod  string `json:"http_method"`
-		Header      string `json:"header"`
-		RequestBody string `json:"request_body"`
-		QueryParam  string `json:"query_param"`
-		BaseAuth    string `json:"base_auth"`
+	logData := logData{
+		RequestData:  c.ClientRequest,
+		ResponseData: c.PartyResponse,
 	}
-
-	type responseData struct {
-		HttpCode       string `json:"http_code"`
-		ResponseHeader string `json:"response_header"`
-		ResponseBody   string `json:"response_body"`
-	}
-
-	type logData struct {
-		RequestData  string `json:"request_data"`
-		ResponseData string `json:"response_data"`
-	}
-
-	_requestData := requestData{
-		Url:         c.ClientRequest.URL,
-		HttpMethod:  c.ClientRequest.HttpMethod,
-		Header:      fmt.Sprintf("%v", &c.ClientRequest.Header),
-		RequestBody: "",
-		QueryParam:  "",
-		BaseAuth:    "",
-	}
-
-	if c.ClientRequest.RequestBody != nil {
-		_requestData.RequestBody = *c.ClientRequest.RequestBody
-	}
-
-	if c.ClientRequest.QueryParam != nil {
-		_requestData.QueryParam = fmt.Sprintf("%v", *c.ClientRequest.QueryParam)
-	}
-
-	if c.ClientRequest.Username != nil && c.ClientRequest.Password != nil {
-		_requestData.BaseAuth = *c.ClientRequest.Username + ":" + *c.ClientRequest.Password
-	}
-
-	var _requestDataStr string
-	_requestDataByte, err := json.Marshal(_requestData)
-	if err != nil {
-		_requestDataStr = fmt.Sprintf("%v", _requestData)
-	} else {
-		_requestDataStr = string(_requestDataByte)
-	}
-
-	var _responseData responseData
-	if c.PartyResponse != nil {
-		_responseData.HttpCode = strconv.Itoa(c.PartyResponse.HttpCode)
-		_responseData.ResponseHeader = fmt.Sprintf("%v", c.PartyResponse.ResponseHeader)
-		_responseData.ResponseBody = c.PartyResponse.ResponseBody
-	}
-
-	var _responseDataStr string
-	_responseDataByte, err := json.Marshal(_responseData)
-	if err != nil {
-		_responseDataStr = fmt.Sprintf("%v", _responseData)
-	} else {
-		_responseDataStr = string(_responseDataByte)
-	}
-
-	_logData := logData{
-		RequestData:  _requestDataStr,
-		ResponseData: _responseDataStr,
-	}
-
-	var _logDataStr string
-	_logDataByte, err := json.Marshal(_logData)
-	if err != nil {
-		_logDataStr = fmt.Sprintf("%v", _logData)
-	} else {
-		_logDataStr = string(_logDataByte)
-	}
-
-	_requestId := RequestId[c.ClientRequest.ResponseId]
 
 	go func() {
-
 		data := SqlLog{
 			ResponseID:   strconv.FormatInt(c.ClientRequest.ResponseId, 10),
-			Step:         _step,
-			Code:         "",
-			Message:      "",
-			FunctionName: _fnName,
-			Data:         _logDataStr,
-			Tracer:       "",
-			Duration:     _duration,
-			RequestID:    _requestId,
+			Step:         GetStepInt(c.ClientRequest.ResponseId),
+			FunctionName: getFunctionNameWithDomain(c.ClientRequest.URL, "ClientParty.HitExternalApi"),
+			Data:         jsonMarshal(logData),
+			Duration:     duration,
+			RequestID:    RequestId[c.ClientRequest.ResponseId],
 		}
 
 		_ = infra.GormDB.Debug().Create(&data)
