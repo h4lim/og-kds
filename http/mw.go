@@ -101,7 +101,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 	}
 
-	if OptConfig.sqlLogs {
+	if OptConfig.SqlLogs {
 
 		logEntry := MwLogRequestData{
 			URL:           c.Request.Method + "[" + c.Request.RequestURI + "]",
@@ -168,7 +168,7 @@ func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) int64 {
 
 	}
 
-	if OptConfig.sqlLogs {
+	if OptConfig.SqlLogs {
 
 		logEntry := MwMqttRequestData{
 			Topic:   msg.Topic(),

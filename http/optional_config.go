@@ -9,7 +9,7 @@ import (
 )
 
 type OptConfigModel struct {
-	sqlLogs        bool
+	SqlLogs        bool
 	RequestIdAlias string
 }
 
@@ -30,7 +30,7 @@ type sqlLog struct {
 
 func setOptionalConfig(config OptConfigModel) {
 
-	if infra.GormDB != nil && config.sqlLogs {
+	if infra.GormDB != nil && config.SqlLogs {
 		if err := infra.GormDB.AutoMigrate(&sqlLog{}); err != nil {
 			fmt.Println("error db migrate", err)
 			os.Exit(1)

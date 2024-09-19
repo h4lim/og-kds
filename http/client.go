@@ -151,7 +151,7 @@ func (c ClientContext) Hit() ClientContext {
 
 	c.PartyResponse = clientResponse
 
-	if OptConfig.sqlLogs {
+	if OptConfig.SqlLogs {
 		c.logSql(duration)
 	}
 

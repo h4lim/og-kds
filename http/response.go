@@ -106,7 +106,7 @@ func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) Response 
 
 	r.debug(true)
 
-	if OptConfig.sqlLogs {
+	if OptConfig.SqlLogs {
 		r.logSql()
 	}
 
@@ -141,7 +141,7 @@ func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSet
 
 	r.debug(true)
 
-	if OptConfig.sqlLogs {
+	if OptConfig.SqlLogs {
 		r.logSql()
 	}
 
@@ -183,7 +183,7 @@ func (r *Response) SetAll(newR Response) Response {
 
 	r.debug(true)
 
-	if OptConfig.sqlLogs {
+	if OptConfig.SqlLogs {
 		r.logSql()
 	}
 
