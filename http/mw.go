@@ -133,7 +133,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 	c.Next()
 }
 
-func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) {
+func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) int64 {
 	responseId := time.Now().UnixNano()
 
 	unixResponse := make(map[int64]int64)
@@ -193,6 +193,8 @@ func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) {
 			_ = infra.GormDB.Debug().Create(&data)
 		}()
 	}
+
+	return responseId
 }
 
 // func (m mwContext) SetInitialTracerData(_requestId string) {
