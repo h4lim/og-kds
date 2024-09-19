@@ -60,23 +60,23 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 	responseId := time.Now().UnixNano()
 
-	unixResponse := make(map[int64]int64)
-	step := make(map[int64]int)
-	requestId := make(map[int64]string)
+	// unixResponse := make(map[int64]int64)
+	// step := make(map[int64]int)
+	// requestId := make(map[int64]string)
 
-	unixResponse[responseId] = responseId
-	step[responseId] = 1
+	UnixTimestamp[responseId] = responseId
+	Step[responseId] = 1
 
-	UnixTimestamp = unixResponse
-	Step = step
+	// UnixTimestamp = unixResponse
+	// Step = step
 
 	rawData, errGetRawData := c.GetRawData()
 	duration := time.Now().UnixNano() - responseId
 	ms := duration / int64(time.Millisecond)
 
 	_requestId := GetRequestIdFromRequest(rawData)
-	requestId[responseId] = _requestId
-	RequestId = requestId
+	RequestId[responseId] = _requestId
+	// RequestId = requestId
 
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
@@ -137,23 +137,23 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) int64 {
 	responseId := time.Now().UnixNano()
 
-	unixResponse := make(map[int64]int64)
-	step := make(map[int64]int)
-	requestId := make(map[int64]string)
+	// unixResponse := make(map[int64]int64)
+	// step := make(map[int64]int)
+	// requestId := make(map[int64]string)
 
-	unixResponse[responseId] = responseId
-	step[responseId] = 1
+	UnixTimestamp[responseId] = responseId
+	Step[responseId] = 1
 
-	UnixTimestamp = unixResponse
-	Step = step
+	// UnixTimestamp = unixResponse
+	// Step = step
 
 	rawData := msg.Payload()
 	duration := time.Now().UnixNano() - responseId
 	ms := duration / int64(time.Millisecond)
 
 	_requestId := GetRequestIdFromRequest(rawData)
-	requestId[responseId] = _requestId
-	RequestId = requestId
+	RequestId[responseId] = _requestId
+	// RequestId = requestId
 
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
