@@ -352,6 +352,7 @@ func (r *Response) logSql() {
 		r.getMessage()
 	}
 
+	_requestId := RequestId[r.ResponseID]
 	_step := GetStepInt(r.ResponseID)
 	_duration := GetDuration(r.ResponseID) + " ms"
 
@@ -362,8 +363,6 @@ func (r *Response) logSql() {
 	} else {
 		_data = string(jsonData)
 	}
-
-	_requestId := RequestId[r.ResponseID]
 
 	go func() {
 
