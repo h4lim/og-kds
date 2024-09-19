@@ -168,7 +168,7 @@ func (c ClientContext) logSql(duration string) {
 		data := SqlLog{
 			ResponseID:   strconv.FormatInt(c.ClientRequest.ResponseId, 10),
 			Step:         GetStepInt(c.ClientRequest.ResponseId),
-			FunctionName: getFunctionNameWithDomain(c.ClientRequest.URL, "ClientParty.HitExternalApi"),
+			FunctionName: c.ClientRequest.URL,
 			Data:         jsonMarshal(logData),
 			Duration:     duration,
 			RequestID:    RequestId[c.ClientRequest.ResponseId],

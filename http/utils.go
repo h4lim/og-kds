@@ -173,16 +173,6 @@ func GetRequestIdFromRequest(rawBody []byte) string {
 	return requestId
 }
 
-func getFunctionNameWithDomain(url, defaultName string) string {
-	// Extract domain from URL
-	parts := strings.Split(url, "://")
-	if len(parts) > 1 {
-		domain := strings.Split(parts[1], "/")[0]
-		return domain + "/" + defaultName
-	}
-	return defaultName
-}
-
 func jsonMarshal(v interface{}) string {
 	b, err := json.Marshal(v)
 	if err != nil {
