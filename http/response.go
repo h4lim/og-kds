@@ -352,7 +352,7 @@ func (r *Response) logSql() {
 		r.getMessage()
 	}
 
-	_requestId := RequestId[r.ResponseID]
+	_requestId := GetRequestId(r.ResponseID)
 	_step := GetStepInt(r.ResponseID)
 	_duration := GetDuration(r.ResponseID) + " ms"
 
