@@ -32,6 +32,7 @@ type mwContext struct {
 type IMw interface {
 	CorsPolicy(c *gin.Context)
 	DeliveryHandler(c *gin.Context)
+	MqttSubscribeHandler(msg mqtt.Message) int64
 }
 
 func NewMw() IMw {
