@@ -346,38 +346,37 @@ func (r *Response) getMessage() {
 }
 
 func (r *Response) logSql() {
-	_fnName := r.Tracer.FunctionName
+	go func(response *Response) {
+		_fnName := response.Tracer.FunctionName
 
-	if r.Message == "" {
-		r.getMessage()
-	}
+		if response.Message == "" {
+			response.getMessage()
+		}
 
-	_requestId := RequestId[r.ResponseID]
-	_step := GetStepInt(r.ResponseID)
-	_duration := GetDuration(r.ResponseID) + " ms"
+		_requestId := RequestId[response.ResponseID]
+		_step := GetStepInt(response.ResponseID)
+		_duration := GetDuration(response.ResponseID) + " ms"
 
-	var _data string
-	jsonData, err := json.Marshal(r.Data)
-	if err != nil {
-		_data = fmt.Sprintf("%v", r.Data)
-	} else {
-		_data = string(jsonData)
-	}
-
-	go func() {
+		var _data string
+		jsonData, err := json.Marshal(response.Data)
+		if err != nil {
+			_data = fmt.Sprintf("%v", response.Data)
+		} else {
+			_data = string(jsonData)
+		}
 
 		data := SqlLog{
-			ResponseID:   strconv.FormatInt(r.ResponseID, 10),
+			ResponseID:   strconv.FormatInt(response.ResponseID, 10),
 			Step:         _step,
-			Code:         r.Code,
-			Message:      r.Message,
+			Code:         response.Code,
+			Message:      response.Message,
 			FunctionName: _fnName,
 			Data:         _data,
-			Tracer:       r.Tracer.FileName + ":" + strconv.Itoa(r.Tracer.Line),
+			Tracer:       response.Tracer.FileName + ":" + strconv.Itoa(response.Tracer.Line),
 			Duration:     _duration,
 			RequestID:    _requestId,
 		}
 
 		_ = infra.GormDB.Debug().Create(&data)
-	}()
+	}(r)
 }
