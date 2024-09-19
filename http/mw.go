@@ -101,7 +101,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 	}
 
-	if OptConfig.SqlLogs {
+	if OptConfig.sqlLogs {
 
 		logEntry := MwLogRequestData{
 			URL:           c.Request.Method + "[" + c.Request.RequestURI + "]",
@@ -112,7 +112,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 		jsonString := string(jsonMarshal(logEntry))
 		tracer := Tracer()
 
-		data := SqlLog{
+		data := sqlLog{
 			ResponseID:   strconv.FormatInt(responseId, 10),
 			Step:         1,
 			Code:         "0",
@@ -168,7 +168,7 @@ func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) int64 {
 
 	}
 
-	if OptConfig.SqlLogs {
+	if OptConfig.sqlLogs {
 
 		logEntry := MwMqttRequestData{
 			Topic:   msg.Topic(),
@@ -178,7 +178,7 @@ func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) int64 {
 		jsonString := string(jsonMarshal(logEntry))
 		tracer := Tracer()
 
-		data := SqlLog{
+		data := sqlLog{
 			ResponseID:   strconv.FormatInt(responseId, 10),
 			Step:         1,
 			Code:         "0",

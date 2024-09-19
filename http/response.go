@@ -106,7 +106,7 @@ func (r *Response) SetSuccessR(Tracer TracerModel, optData ...OptSetR) Response 
 
 	r.debug(true)
 
-	if OptConfig.SqlLogs {
+	if OptConfig.sqlLogs {
 		r.logSql()
 	}
 
@@ -141,7 +141,7 @@ func (r *Response) SetErrorR(Error *error, Tracer TracerModel, optData ...OptSet
 
 	r.debug(true)
 
-	if OptConfig.SqlLogs {
+	if OptConfig.sqlLogs {
 		r.logSql()
 	}
 
@@ -183,7 +183,7 @@ func (r *Response) SetAll(newR Response) Response {
 
 	r.debug(true)
 
-	if OptConfig.SqlLogs {
+	if OptConfig.sqlLogs {
 		r.logSql()
 	}
 
@@ -365,7 +365,7 @@ func (r *Response) logSql() {
 			_data = string(jsonData)
 		}
 
-		data := SqlLog{
+		data := sqlLog{
 			ResponseID:   strconv.FormatInt(response.ResponseID, 10),
 			Step:         _step,
 			Code:         response.Code,

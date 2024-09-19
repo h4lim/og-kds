@@ -38,6 +38,14 @@ type RequestHeaderSnap struct {
 	ChannelId             string
 }
 
+func InitGlobalVariables(config OptConfigModel) {
+	RequestId = make(map[int64]string)
+	UnixTimestamp = make(map[int64]int64)
+	Step = make(map[int64]int)
+
+	setOptionalConfig(config)
+}
+
 func GetHeaderSnapTransaction(c *gin.Context) RequestHeaderSnap {
 	var headerSnap RequestHeaderSnap
 

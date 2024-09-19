@@ -151,7 +151,7 @@ func (c ClientContext) Hit() ClientContext {
 
 	c.PartyResponse = clientResponse
 
-	if OptConfig.SqlLogs {
+	if OptConfig.sqlLogs {
 		c.logSql(duration)
 	}
 
@@ -165,7 +165,7 @@ func (c ClientContext) logSql(duration string) {
 	}
 
 	go func() {
-		data := SqlLog{
+		data := sqlLog{
 			ResponseID:   strconv.FormatInt(c.ClientRequest.ResponseId, 10),
 			Step:         GetStepInt(c.ClientRequest.ResponseId),
 			FunctionName: c.ClientRequest.URL,

@@ -9,11 +9,11 @@ import (
 )
 
 type OptConfigModel struct {
-	SqlLogs        bool
+	sqlLogs        bool
 	RequestIdAlias string
 }
 
-type SqlLog struct {
+type sqlLog struct {
 	ID           uint `gorm:"primarykey" swaggerignore:"true"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
@@ -28,10 +28,10 @@ type SqlLog struct {
 	Tracer       string `db:"tracer"`
 }
 
-func SetOptionalConfig(config OptConfigModel) {
+func setOptionalConfig(config OptConfigModel) {
 
-	if infra.GormDB != nil && config.SqlLogs {
-		if err := infra.GormDB.AutoMigrate(&SqlLog{}); err != nil {
+	if infra.GormDB != nil && config.sqlLogs {
+		if err := infra.GormDB.AutoMigrate(&sqlLog{}); err != nil {
 			fmt.Println("error db migrate", err)
 			os.Exit(1)
 		}
