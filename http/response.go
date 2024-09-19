@@ -235,8 +235,8 @@ func (r *Response) SetError(newError *error) Response {
 func (r Response) BuildGinResponse() (int, any) {
 
 	r.debug(true)
-	delete(UnixTimestamp, r.ResponseID)
-	delete(Step, r.ResponseID)
+	// delete(UnixTimestamp, r.ResponseID)
+	// delete(Step, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGin{
 		Code:       r.Code,
@@ -249,8 +249,8 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 	r.Data = data
 	r.debug(true)
-	delete(UnixTimestamp, r.ResponseID)
-	delete(Step, r.ResponseID)
+	// delete(UnixTimestamp, r.ResponseID)
+	// delete(Step, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGinWithData{
 		Code:       r.Code,
