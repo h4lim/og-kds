@@ -263,8 +263,8 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 func (r Response) BuildGinResponseSnap() (int, any) {
 
 	r.debug(true)
-	delete(UnixTimestamp, r.ResponseID)
-	delete(Step, r.ResponseID)
+	// delete(UnixTimestamp, r.ResponseID)
+	// delete(Step, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGinSnap{
 		ResponseCode:    r.Code,
@@ -277,8 +277,8 @@ func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 	r.Data = data
 	r.debug(true)
-	delete(UnixTimestamp, r.ResponseID)
-	delete(Step, r.ResponseID)
+	// delete(UnixTimestamp, r.ResponseID)
+	// delete(Step, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGinSnapWithData{
 		ResponseCode:    r.Code,
