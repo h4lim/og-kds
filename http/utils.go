@@ -38,7 +38,7 @@ type RequestHeaderSnap struct {
 	ChannelId             string
 }
 
-func InitGlobalVariables(config OptConfigModel) {
+func InitHttp(config OptConfigModel) {
 	RequestId = make(map[int64]string)
 	UnixTimestamp = make(map[int64]int64)
 	Step = make(map[int64]int)
@@ -187,4 +187,19 @@ func jsonMarshal(v interface{}) string {
 		return fmt.Sprintf("%v", v)
 	}
 	return string(b)
+}
+
+func getFunctionName(fnName string) string {
+	parts := strings.Split(fnName, "/")
+	if len(parts) > 0 {
+		fnName = parts[len(parts)-1]
+
+		// Further split by "." and take the last part
+		dotParts := strings.Split(fnName, ".")
+		if len(dotParts) > 0 {
+			fnName = dotParts[len(dotParts)-1]
+		}
+	}
+
+	return fnName
 }

@@ -164,16 +164,16 @@ func (c ClientContext) logSql(duration string) {
 		ResponseData: c.PartyResponse,
 	}
 
-	go func() {
-		data := sqlLog{
-			ResponseID:   strconv.FormatInt(c.ClientRequest.ResponseId, 10),
-			Step:         GetStepInt(c.ClientRequest.ResponseId),
-			FunctionName: c.ClientRequest.URL,
-			Data:         jsonMarshal(logData),
-			Duration:     duration,
-			RequestID:    RequestId[c.ClientRequest.ResponseId],
-		}
+	data := sqlLog{
+		ResponseID:   strconv.FormatInt(c.ClientRequest.ResponseId, 10),
+		Step:         GetStepInt(c.ClientRequest.ResponseId),
+		FunctionName: c.ClientRequest.URL,
+		Data:         jsonMarshal(logData),
+		Duration:     duration,
+		RequestID:    RequestId[c.ClientRequest.ResponseId],
+	}
 
+	go func() {
 		_ = infra.GormDB.Debug().Create(&data)
 	}()
 }

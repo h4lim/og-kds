@@ -16,6 +16,7 @@ import (
 )
 
 type MwLogRequestData struct {
+	HttpMethod    string              `json:"http_method"`
 	URL           string              `json:"url"`
 	RequestBody   string              `json:"request_body"`
 	RequestHeader map[string][]string `json:"request_header"`
@@ -60,15 +61,8 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 	responseId := time.Now().UnixNano()
 
-	// unixResponse := make(map[int64]int64)
-	// step := make(map[int64]int)
-	// requestId := make(map[int64]string)
-
 	UnixTimestamp[responseId] = responseId
 	Step[responseId] = 1
-
-	// UnixTimestamp = unixResponse
-	// Step = step
 
 	rawData, errGetRawData := c.GetRawData()
 	duration := time.Now().UnixNano() - responseId
@@ -76,7 +70,6 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 	_requestId := GetRequestIdFromRequest(rawData)
 	RequestId[responseId] = _requestId
-	// RequestId = requestId
 
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
@@ -104,7 +97,8 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 	if OptConfig.SqlLogs {
 
 		logEntry := MwLogRequestData{
-			URL:           c.Request.Method + "[" + c.Request.RequestURI + "]",
+			HttpMethod:    c.Request.Method,
+			URL:           c.Request.RequestURI,
 			RequestBody:   string(rawData),
 			RequestHeader: c.Request.Header,
 		}
@@ -117,7 +111,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 			Step:         1,
 			Code:         "0",
 			Message:      "Success",
-			FunctionName: tracer.FunctionName,
+			FunctionName: getFunctionName(tracer.FunctionName),
 			Data:         jsonString,
 			Duration:     fmt.Sprintf("%v", ms) + " ms",
 			Tracer:       tracer.FileName + ":" + strconv.Itoa(tracer.Line),
@@ -137,15 +131,8 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) int64 {
 	responseId := time.Now().UnixNano()
 
-	// unixResponse := make(map[int64]int64)
-	// step := make(map[int64]int)
-	// requestId := make(map[int64]string)
-
 	UnixTimestamp[responseId] = responseId
 	Step[responseId] = 1
-
-	// UnixTimestamp = unixResponse
-	// Step = step
 
 	rawData := msg.Payload()
 	duration := time.Now().UnixNano() - responseId
@@ -153,7 +140,6 @@ func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) int64 {
 
 	_requestId := GetRequestIdFromRequest(rawData)
 	RequestId[responseId] = _requestId
-	// RequestId = requestId
 
 	if infra.ZapLog != nil {
 		zapFields := []zapcore.Field{}
@@ -183,7 +169,7 @@ func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) int64 {
 			Step:         1,
 			Code:         "0",
 			Message:      "Success",
-			FunctionName: tracer.FunctionName,
+			FunctionName: getFunctionName(tracer.FunctionName),
 			Data:         jsonString,
 			Duration:     fmt.Sprintf("%v", ms) + " ms",
 			Tracer:       tracer.FileName + ":" + strconv.Itoa(tracer.Line),
@@ -197,22 +183,3 @@ func (m mwContext) MqttSubscribeHandler(msg mqtt.Message) int64 {
 
 	return responseId
 }
-
-// func (m mwContext) SetInitialTracerData(_requestId string) {
-
-// 	unixResponse := make(map[int64]int64)
-// 	step := make(map[int64]int)
-// 	requestId := make(map[int64]string)
-
-// 	responseId := time.Now().UnixNano()
-// 	unixResponse[responseId] = responseId
-// 	step[responseId] = 1
-// 	requestId[responseId] = _requestId
-
-// 	UnixTimestamp = unixResponse
-// 	Step = step
-// 	RequestId = requestId
-
-// 	duration := time.Now().UnixNano() - responseId
-// 	ms := duration / int64(time.Millisecond)
-// }
