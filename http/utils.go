@@ -197,12 +197,6 @@ func getFunctionName(fnName string) string {
 	parts := strings.Split(fnName, "/")
 	if len(parts) > 0 {
 		fnName = parts[len(parts)-1]
-
-		// Further split by "." and take the last part
-		dotParts := strings.Split(fnName, ".")
-		if len(dotParts) > 0 {
-			fnName = dotParts[len(dotParts)-1]
-		}
 	}
 
 	return fnName
