@@ -235,7 +235,7 @@ func (r *Response) SetError(newError *error) Response {
 func (r Response) BuildGinResponse() (int, any) {
 
 	r.debug(true)
-	r.Tracer.FunctionName = "finalResponse"
+	r.Tracer.FunctionName = "api.finalResponse"
 	if OptConfig.SqlLogs {
 		r.logSql()
 	}
@@ -255,7 +255,7 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 	r.Data = data
 	r.debug(true)
-	r.Tracer.FunctionName = "finalResponse"
+	r.Tracer.FunctionName = "api.finalResponse"
 	if OptConfig.SqlLogs {
 		r.logSql()
 	}
@@ -275,7 +275,7 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 func (r Response) BuildGinResponseSnap() (int, any) {
 
 	r.debug(true)
-	r.Tracer.FunctionName = "finalResponse"
+	r.Tracer.FunctionName = "api.finalResponse"
 	if OptConfig.SqlLogs {
 		r.logSql()
 	}
@@ -295,7 +295,7 @@ func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 	r.Data = data
 	r.debug(true)
-	r.Tracer.FunctionName = "finalResponse"
+	r.Tracer.FunctionName = "api.finalResponse"
 	if OptConfig.SqlLogs {
 		r.logSql()
 	}
