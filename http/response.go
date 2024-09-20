@@ -235,6 +235,11 @@ func (r *Response) SetError(newError *error) Response {
 func (r Response) BuildGinResponse() (int, any) {
 
 	r.debug(true)
+	r.Tracer.FunctionName = "finalResponse"
+	if OptConfig.SqlLogs {
+		r.logSql()
+	}
+
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
 	delete(RequestId, r.ResponseID)
@@ -250,6 +255,11 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 	r.Data = data
 	r.debug(true)
+	r.Tracer.FunctionName = "finalResponse"
+	if OptConfig.SqlLogs {
+		r.logSql()
+	}
+
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
 	delete(RequestId, r.ResponseID)
@@ -265,6 +275,11 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 func (r Response) BuildGinResponseSnap() (int, any) {
 
 	r.debug(true)
+	r.Tracer.FunctionName = "finalResponse"
+	if OptConfig.SqlLogs {
+		r.logSql()
+	}
+
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
 	delete(RequestId, r.ResponseID)
@@ -280,6 +295,11 @@ func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 	r.Data = data
 	r.debug(true)
+	r.Tracer.FunctionName = "finalResponse"
+	if OptConfig.SqlLogs {
+		r.logSql()
+	}
+
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
 	delete(RequestId, r.ResponseID)
@@ -295,6 +315,11 @@ func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 func (r Response) BuildVoidResponse() {
 
 	r.debug(true)
+	r.Tracer.FunctionName = "finalResponse"
+	if OptConfig.SqlLogs {
+		r.logSql()
+	}
+
 	delete(UnixTimestamp, r.ResponseID)
 	delete(Step, r.ResponseID)
 	delete(RequestId, r.ResponseID)
@@ -376,19 +401,19 @@ func (r *Response) logSql() {
 		_data = string(jsonData)
 	}
 
-	go func() {
-		data := sqlLog{
-			ResponseID:   strconv.FormatInt(r.ResponseID, 10),
-			Step:         _step,
-			Code:         r.Code,
-			Message:      r.Message,
-			FunctionName: _fnName,
-			Data:         _data,
-			Tracer:       r.Tracer.FileName + ":" + strconv.Itoa(r.Tracer.Line),
-			Duration:     _duration,
-			RequestID:    _requestId,
-		}
+	data := sqlLog{
+		ResponseID:   strconv.FormatInt(r.ResponseID, 10),
+		Step:         _step,
+		Code:         r.Code,
+		Message:      r.Message,
+		FunctionName: _fnName,
+		Data:         _data,
+		Tracer:       r.Tracer.FileName + ":" + strconv.Itoa(r.Tracer.Line),
+		Duration:     _duration,
+		RequestID:    _requestId,
+	}
 
+	go func() {
 		_ = infra.GormDB.Debug().Create(&data)
 	}()
 }
