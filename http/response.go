@@ -235,8 +235,9 @@ func (r *Response) SetError(newError *error) Response {
 func (r Response) BuildGinResponse() (int, any) {
 
 	r.debug(true)
-	// delete(UnixTimestamp, r.ResponseID)
-	// delete(Step, r.ResponseID)
+	delete(UnixTimestamp, r.ResponseID)
+	delete(Step, r.ResponseID)
+	delete(RequestId, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGin{
 		Code:       r.Code,
@@ -249,8 +250,9 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 	r.Data = data
 	r.debug(true)
-	// delete(UnixTimestamp, r.ResponseID)
-	// delete(Step, r.ResponseID)
+	delete(UnixTimestamp, r.ResponseID)
+	delete(Step, r.ResponseID)
+	delete(RequestId, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGinWithData{
 		Code:       r.Code,
@@ -263,8 +265,9 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 func (r Response) BuildGinResponseSnap() (int, any) {
 
 	r.debug(true)
-	// delete(UnixTimestamp, r.ResponseID)
-	// delete(Step, r.ResponseID)
+	delete(UnixTimestamp, r.ResponseID)
+	delete(Step, r.ResponseID)
+	delete(RequestId, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGinSnap{
 		ResponseCode:    r.Code,
@@ -277,8 +280,9 @@ func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 	r.Data = data
 	r.debug(true)
-	// delete(UnixTimestamp, r.ResponseID)
-	// delete(Step, r.ResponseID)
+	delete(UnixTimestamp, r.ResponseID)
+	delete(Step, r.ResponseID)
+	delete(RequestId, r.ResponseID)
 
 	return r.HttpCode, RequestBuildGinSnapWithData{
 		ResponseCode:    r.Code,
@@ -286,6 +290,14 @@ func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 		ReferenceNo:     r.ResponseID,
 		Data:            r.Data,
 	}
+}
+
+func (r Response) BuildVoidResponse() {
+
+	r.debug(true)
+	delete(UnixTimestamp, r.ResponseID)
+	delete(Step, r.ResponseID)
+	delete(RequestId, r.ResponseID)
 }
 
 func (r *Response) IsError() bool {
