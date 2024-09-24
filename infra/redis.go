@@ -28,7 +28,7 @@ type RedisModel struct {
 type IRedisConfig interface {
 	Open() *error
 	Set(key string, redisType string, value any, duration int) *error
-	Get(key string, redisType string) (*interface{}, *error)
+	Get(key string, redisType string) (any, *error)
 }
 
 func InitRedis(model RedisModel) {
@@ -99,7 +99,7 @@ func (r RedisModel) Set(key string, redisType string, value any, duration int) *
 
 }
 
-func (r RedisModel) Get(key string, redisType string) (*interface{}, *error) {
+func (r RedisModel) Get(key string, redisType string) (any, *error) {
 
 	client, err := open(r)
 	if err != nil {
@@ -123,8 +123,7 @@ func (r RedisModel) Get(key string, redisType string) (*interface{}, *error) {
 			return nil, &err
 		}
 	case SingleType:
-		newError := errors.New("method not implemented")
-		return nil, &newError
+		return value, nil
 	}
 
 	newError := errors.New("invalid redis type")
