@@ -18,7 +18,7 @@ require (
 	golang.org/x/sync v0.8.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.9
-	gorm.io/gen v0.3.26
+	gorm.io/gen v0.3.24
 	gorm.io/gorm v1.25.11
 )
 
@@ -77,6 +77,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.1.1-0.20230130040222-c43177d3cf8c // indirect
 	gorm.io/hints v1.1.0 // indirect
-	gorm.io/plugin/dbresolver v1.5.0 // indirect
+	gorm.io/plugin/dbresolver v1.4.1 // indirect
 	nhooyr.io/websocket v1.8.11 // indirect
 )
