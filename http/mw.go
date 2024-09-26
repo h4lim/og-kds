@@ -84,7 +84,7 @@ func (m mwContext) DeliveryHandler(c *gin.Context) {
 
 		if errGetRawData != nil {
 			zapFields = append(zapFields, zap.String("error", errGetRawData.Error()))
-			infra.ZapLog.Error(strconv.FormatInt(responseId, 10), zapFields...)
+			infra.ZapLog.Warn(strconv.FormatInt(responseId, 10), zapFields...)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
 			return
 		} else {

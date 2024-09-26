@@ -129,7 +129,7 @@ func (c ClientContext) Hit() ClientContext {
 			fmt.Sprintf("%v", *err)))
 
 		if infra.ZapLog != nil {
-			infra.ZapLog.Error(strconv.FormatInt(c.ClientRequest.ResponseId, 10), zapFields...)
+			infra.ZapLog.Warn(strconv.FormatInt(c.ClientRequest.ResponseId, 10), zapFields...)
 		}
 
 		c.Error = *err

@@ -224,7 +224,7 @@ func (r *Response) SetError(newError *error) Response {
 			zapFields = append(zapFields, zap.String("error-info", "New Error "+fmt.Sprintf("%v", *r.Error)))
 		}
 
-		infra.ZapLog.Error(strconv.FormatInt(r.ResponseID, 10), zapFields...)
+		infra.ZapLog.Warn(strconv.FormatInt(r.ResponseID, 10), zapFields...)
 	}
 
 	r.debug(false)
@@ -234,8 +234,8 @@ func (r *Response) SetError(newError *error) Response {
 
 func (r Response) BuildGinResponse() (int, any) {
 
-	r.debug(true)
 	r.Tracer.FunctionName = "api.finalResponse"
+	r.debug(true)
 	if OptConfig.SqlLogs {
 		r.logSql()
 	}
@@ -254,8 +254,8 @@ func (r Response) BuildGinResponse() (int, any) {
 func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 	r.Data = data
-	r.debug(true)
 	r.Tracer.FunctionName = "api.finalResponse"
+	r.debug(true)
 	if OptConfig.SqlLogs {
 		r.logSql()
 	}
@@ -274,8 +274,8 @@ func (r Response) BuildGinResponseWithData(data any) (int, any) {
 
 func (r Response) BuildGinResponseSnap() (int, any) {
 
-	r.debug(true)
 	r.Tracer.FunctionName = "api.finalResponse"
+	r.debug(true)
 	if OptConfig.SqlLogs {
 		r.logSql()
 	}
@@ -294,8 +294,8 @@ func (r Response) BuildGinResponseSnap() (int, any) {
 func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 	r.Data = data
-	r.debug(true)
 	r.Tracer.FunctionName = "api.finalResponse"
+	r.debug(true)
 	if OptConfig.SqlLogs {
 		r.logSql()
 	}
@@ -314,8 +314,8 @@ func (r Response) BuildGinResponseSnapWithData(data any) (int, any) {
 
 func (r Response) BuildVoidResponse() {
 
-	r.debug(true)
 	r.Tracer.FunctionName = "finalResponse"
+	r.debug(true)
 	if OptConfig.SqlLogs {
 		r.logSql()
 	}
@@ -357,7 +357,7 @@ func (r *Response) debug(nextStep bool) {
 
 		if r.Error != nil {
 			zapFields = append(zapFields, zap.String("error", fmt.Sprintf("%v", *r.Error)))
-			infra.ZapLog.Error(strconv.FormatInt(r.ResponseID, 10), zapFields...)
+			infra.ZapLog.Warn(strconv.FormatInt(r.ResponseID, 10), zapFields...)
 		} else {
 			infra.ZapLog.Debug(strconv.FormatInt(r.ResponseID, 10), zapFields...)
 		}
