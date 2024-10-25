@@ -29,6 +29,7 @@ type IRedisConfig interface {
 	Open() *error
 	Set(key string, redisType string, value any, duration int) *error
 	Get(key string, redisType string) (any, *error)
+	Delete(key string) *error
 }
 
 func InitRedis(model RedisModel) {
@@ -58,6 +59,7 @@ func (r RedisModel) Set(key string, redisType string, value any, duration int) *
 	if err != nil {
 		return err
 	}
+	defer client.Close()
 
 	_duration := time.Duration(duration) * time.Second
 	switch redisType {
@@ -105,6 +107,7 @@ func (r RedisModel) Get(key string, redisType string) (any, *error) {
 	if err != nil {
 		return nil, err
 	}
+	defer client.Close()
 
 	value, errGet := client.Get(context.Background(), key).Result()
 	if errGet != nil {
@@ -129,6 +132,21 @@ func (r RedisModel) Get(key string, redisType string) (any, *error) {
 	newError := errors.New("invalid redis type")
 	return nil, &newError
 
+}
+
+func (r RedisModel) Delete(key string) *error {
+
+	client, err := open(r)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	if err := client.Del(context.Background(), key).Err(); err != nil {
+		return &err
+	}
+
+	return nil
 }
 
 func open(model RedisModel) (*redis.Client, *error) {
